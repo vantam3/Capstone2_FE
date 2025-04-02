@@ -60,7 +60,7 @@ function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-yellow-400 to-red-500 px-4 py-12">
+    <div className="">
       <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
         <a 
           href="#" 

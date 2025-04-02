@@ -9,7 +9,6 @@ function Navbar() {
         <Link to="/" className="hover:text-gray-300">Home</Link>
         <Link to="/signin" className="hover:text-gray-300">Sign In</Link>
         <Link to="/signup" className="hover:text-gray-300">Sign Up</Link>
-        <Link to="/reset-password" className="hover:text-gray-300">Reset Password</Link>
       </div>
     </nav>
   );
