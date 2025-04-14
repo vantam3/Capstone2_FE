@@ -25,12 +25,10 @@ function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Toggle menu khi click vào avatar
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
   };
 
-  // Đóng menu khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

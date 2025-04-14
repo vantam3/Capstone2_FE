@@ -1,35 +1,34 @@
 import {
   ArrowLeftIcon,
-  ChatBubbleBottomCenterIcon,
+  BookOpenIcon,
   CheckCircleIcon,
-  MicrophoneIcon,
+  PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import Example from "./components/example";
-import Pronuciation from "./components/pronuciation";
-import Conversation from "./components/convertsation";
-import Grammar from "./components/grammar";
 import { useNavigate } from "react-router-dom";
+import ChooseTopic from "./components/choose-topic";
+import TakeTest from "./components/take-test";
+import Result from "./components/result";
 
 function Practice() {
   const tabs = [
     {
-      name: "Pronunciation",
-      code: "Pronunciation",
+      name: "Choose topic",
+      code: "tab_1",
       current: true,
-      icon: <MicrophoneIcon className="w-4 h-4" />,
+      icon: <BookOpenIcon className="w-6 h-6" />,
     },
     {
-      name: "Conversation",
-      code: "Conversation",
+      name: "Take the test",
+      code: "tab_2",
       current: true,
-      icon: <ChatBubbleBottomCenterIcon className="w-4 h-4" />,
+      icon: <PencilSquareIcon className="w-6 h-6" />,
     },
     {
-      name: "Grammar",
-      code: "Grammar",
+      name: "Result",
+      code: "tab_3",
       current: true,
-      icon: <CheckCircleIcon className="w-4 h-4" />,
+      icon: <CheckCircleIcon className="w-6 h-6" />,
     },
   ];
 
@@ -38,7 +37,7 @@ function Practice() {
 
   return (
     <>
-      <div className="mt-[5rem] sm:mt-[10rem] sm:p-2 max-w-screen-2xl mx-auto p-6">
+      <div className="mt-[5rem] sm:mt-[8rem] sm:p-2 max-w-screen-lg mx-auto p-6">
         <div className="flex items-center gap-4 ">
           <ArrowLeftIcon
             className="w-4 h-4 cursor-pointer text-white"
@@ -46,52 +45,11 @@ function Practice() {
           />
           <p className="text-xs text-white ">Back</p>
           <p className="text-2xl font-[600] text-white">Speaking Practice</p>
-          <button
-            className="text-lg font-[600] text-white ml-auto cursor-pointer"
-            onClick={() => router("/practice/history")}
-          >
-            View history
-          </button>
         </div>
         <p className="text-sm text-white mt-2">
-          Perfect your pronunciation and speaking skills with real-time AI
-          feedback. Choose an exercise type below to get started.
+          Choose the topic you want to learn and the level that suits your
+          ability.
         </p>
-
-        <div className="flex items-center gap-2 w-full">
-          <div className="w-full">
-            <label
-              htmlFor="countries"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Select an option
-            </label>
-            <select className="bg-[#000000] border border-[#000000] text-white text-sm rounded-lg block w-full p-2.5">
-              <option value="US">Daily conversation</option>
-              <option value="CA">Canada</option>
-              <option value="FR">France</option>
-              <option value="DE">Germany</option>
-            </select>
-          </div>
-          <div className="w-full">
-            <label
-              htmlFor="countries"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Select an option
-            </label>
-            <select className="bg-[#000000] border border-[#000000] text-white text-sm rounded-lg block w-full p-2.5">
-              <option>
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">
-                  Elementary
-                </span>
-              </option>
-              <option value="CA">Canada</option>
-              <option value="FR">France</option>
-              <option value="DE">Germany</option>
-            </select>
-          </div>
-        </div>
 
         <div className="mt-4 bg-[#4b2f8d] max-w-screen-2xl mx-auto rounded-[10px]">
           <div className="sm:hidden">
@@ -131,15 +89,14 @@ function Practice() {
             </nav>
           </div>
         </div>
+        {activeTab === "tab_1" ? (
+          <ChooseTopic setActiveTab={setActiveTab} />
+        ) : activeTab === "tab_2" ? (
+          <TakeTest />
+        ) : (
+          <Result />
+        )}
       </div>
-      {activeTab === "Pronunciation" ? (
-        <Pronuciation />
-      ) : activeTab === "Conversation" ? (
-        <Conversation />
-      ) : (
-        <Grammar />
-      )}
-      <Example />
     </>
   );
 }

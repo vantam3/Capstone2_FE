@@ -1,5 +1,4 @@
 import { ChevronRightIcon } from "@heroicons/react/16/solid";
-import React from "react";
 import { Link } from "react-router-dom";
 
 function Transform() {
