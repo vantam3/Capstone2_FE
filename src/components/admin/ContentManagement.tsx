@@ -386,7 +386,7 @@ const ContentManagement = () => {
         
         <TabsContent value="voiceModels" className="space-y-4 mt-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center border rounded-md px-3 py-2 w-full max-w-sm">
+            <div className="flex items-center border rounded-md px-3 py-2 w-full max-w-sm bg-slate-950">
               <Search className="h-5 w-5 text-gray-500 mr-2" />
               <Input className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" placeholder="Search voice models..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>

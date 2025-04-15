@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,81 +6,202 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FileBarChart, Download, Calendar, RefreshCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
 
 // Mock data for user activity report
-const userActivityData = [
-  { name: 'Mon', logins: 120, lessonCompleted: 80, quizTaken: 45 },
-  { name: 'Tue', logins: 150, lessonCompleted: 90, quizTaken: 60 },
-  { name: 'Wed', logins: 180, lessonCompleted: 110, quizTaken: 70 },
-  { name: 'Thu', logins: 200, lessonCompleted: 130, quizTaken: 90 },
-  { name: 'Fri', logins: 250, lessonCompleted: 150, quizTaken: 100 },
-  { name: 'Sat', logins: 180, lessonCompleted: 120, quizTaken: 80 },
-  { name: 'Sun', logins: 120, lessonCompleted: 70, quizTaken: 50 }
-];
+const userActivityData = [{
+  name: 'Mon',
+  logins: 120,
+  lessonCompleted: 80,
+  quizTaken: 45
+}, {
+  name: 'Tue',
+  logins: 150,
+  lessonCompleted: 90,
+  quizTaken: 60
+}, {
+  name: 'Wed',
+  logins: 180,
+  lessonCompleted: 110,
+  quizTaken: 70
+}, {
+  name: 'Thu',
+  logins: 200,
+  lessonCompleted: 130,
+  quizTaken: 90
+}, {
+  name: 'Fri',
+  logins: 250,
+  lessonCompleted: 150,
+  quizTaken: 100
+}, {
+  name: 'Sat',
+  logins: 180,
+  lessonCompleted: 120,
+  quizTaken: 80
+}, {
+  name: 'Sun',
+  logins: 120,
+  lessonCompleted: 70,
+  quizTaken: 50
+}];
 
 // Mock data for content engagement report
-const contentEngagementData = [
-  { name: 'Business', views: 450, completions: 320, ratings: 4.2 },
-  { name: 'Grammar', views: 380, completions: 260, ratings: 4.5 },
-  { name: 'Conversation', views: 520, completions: 410, ratings: 4.7 },
-  { name: 'Pronunciation', views: 280, completions: 190, ratings: 4.1 },
-  { name: 'Vocabulary', views: 350, completions: 230, ratings: 4.3 }
-];
+const contentEngagementData = [{
+  name: 'Business',
+  views: 450,
+  completions: 320,
+  ratings: 4.2
+}, {
+  name: 'Grammar',
+  views: 380,
+  completions: 260,
+  ratings: 4.5
+}, {
+  name: 'Conversation',
+  views: 520,
+  completions: 410,
+  ratings: 4.7
+}, {
+  name: 'Pronunciation',
+  views: 280,
+  completions: 190,
+  ratings: 4.1
+}, {
+  name: 'Vocabulary',
+  views: 350,
+  completions: 230,
+  ratings: 4.3
+}];
 
 // Mock data for user growth
-const userGrowthData = [
-  { name: 'Jan', users: 400 },
-  { name: 'Feb', users: 480 },
-  { name: 'Mar', users: 550 },
-  { name: 'Apr', users: 590 },
-  { name: 'May', users: 620 },
-  { name: 'Jun', users: 700 },
-  { name: 'Jul', users: 800 },
-  { name: 'Aug', users: 880 }
-];
+const userGrowthData = [{
+  name: 'Jan',
+  users: 400
+}, {
+  name: 'Feb',
+  users: 480
+}, {
+  name: 'Mar',
+  users: 550
+}, {
+  name: 'Apr',
+  users: 590
+}, {
+  name: 'May',
+  users: 620
+}, {
+  name: 'Jun',
+  users: 700
+}, {
+  name: 'Jul',
+  users: 800
+}, {
+  name: 'Aug',
+  users: 880
+}];
 
 // Mock data for performance metrics
-const performanceData = [
-  { name: 'Week 1', score: 65 },
-  { name: 'Week 2', score: 68 },
-  { name: 'Week 3', score: 70 },
-  { name: 'Week 4', score: 72 },
-  { name: 'Week 5', score: 75 },
-  { name: 'Week 6', score: 78 },
-  { name: 'Week 7', score: 82 },
-  { name: 'Week 8', score: 85 }
-];
+const performanceData = [{
+  name: 'Week 1',
+  score: 65
+}, {
+  name: 'Week 2',
+  score: 68
+}, {
+  name: 'Week 3',
+  score: 70
+}, {
+  name: 'Week 4',
+  score: 72
+}, {
+  name: 'Week 5',
+  score: 75
+}, {
+  name: 'Week 6',
+  score: 78
+}, {
+  name: 'Week 7',
+  score: 82
+}, {
+  name: 'Week 8',
+  score: 85
+}];
+const availableReports = [{
+  id: 'userActivity',
+  name: 'User Activity',
+  icon: 'activity'
+}, {
+  id: 'contentEngagement',
+  name: 'Content Engagement',
+  icon: 'content'
+}, {
+  id: 'userGrowth',
+  name: 'User Growth',
+  icon: 'growth'
+}, {
+  id: 'performance',
+  name: 'Learning Performance',
+  icon: 'performance'
+}, {
+  id: 'systemUsage',
+  name: 'System Usage',
+  icon: 'system'
+}];
 
-const availableReports = [
-  { id: 'userActivity', name: 'User Activity', icon: 'activity' },
-  { id: 'contentEngagement', name: 'Content Engagement', icon: 'content' },
-  { id: 'userGrowth', name: 'User Growth', icon: 'growth' },
-  { id: 'performance', name: 'Learning Performance', icon: 'performance' },
-  { id: 'systemUsage', name: 'System Usage', icon: 'system' }
-];
-
+// Form type definition
+type ReportFormValues = {
+  reportType: string;
+  timeRange: string;
+  dataPoints: string;
+  chartType: string;
+  includeCharts: boolean;
+  includeTables: boolean;
+  includeSummary: boolean;
+  includeRaw: boolean;
+  reportName: string;
+};
 const GenerateReports = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [activeTab, setActiveTab] = useState('userActivity');
   const [timeRange, setTimeRange] = useState('week');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Initialize form
+  const form = useForm<ReportFormValues>({
+    defaultValues: {
+      reportType: 'userActivity',
+      timeRange: 'week',
+      dataPoints: 'all',
+      chartType: 'bar',
+      includeCharts: true,
+      includeTables: true,
+      includeSummary: true,
+      includeRaw: false,
+      reportName: ''
+    }
+  });
   const handleGenerateReport = (format: string) => {
     setIsGenerating(true);
-    
+
     // Simulate report generation delay
     setTimeout(() => {
       setIsGenerating(false);
-      
       toast({
         title: "Report Generated",
         description: `${availableReports.find(r => r.id === activeTab)?.name} report has been generated in ${format.toUpperCase()} format.`
       });
     }, 1500);
   };
-
-  return (
-    <div className="space-y-6">
+  const onSubmit = (data: ReportFormValues) => {
+    console.log('Report configuration:', data);
+    handleGenerateReport('pdf');
+  };
+  return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight text-slate-950">Generate Reports</h2>
@@ -92,233 +212,307 @@ const GenerateReports = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Available Reports</CardTitle>
-            <CardDescription>
+        <Card className="border-purple-100 shadow-md">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-purple-50 border-b border-purple-100">
+            <CardTitle className="text-slate-800">Available Reports</CardTitle>
+            <CardDescription className="text-slate-600">
               Select a report type to generate
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-              <TabsList className="grid grid-cols-5 gap-2">
-                {availableReports.map(report => (
-                  <TabsTrigger 
-                    key={report.id} 
-                    value={report.id} 
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    {report.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              
-              <div className="flex items-center justify-between space-x-4 mt-6">
-                <div className="flex space-x-2 items-center">
-                  <Calendar className="h-5 w-5 text-gray-500" />
-                  <Select value={timeRange} onValueChange={setTimeRange}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select time range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="day">Today</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="month">This Month</SelectItem>
-                      <SelectItem value="quarter">This Quarter</SelectItem>
-                      <SelectItem value="year">This Year</SelectItem>
-                    </SelectContent>
-                  </Select>
+          <CardContent className="pt-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField control={form.control} name="reportType" render={({
+                field
+              }) => <FormItem>
+                      <FormLabel className="text-slate-700 font-medium">Report Type</FormLabel>
+                      <div className="grid grid-cols-3 gap-3 pt-2">
+                        {availableReports.map(report => <Button key={report.id} type="button" variant={field.value === report.id ? "default" : "outline"} className={field.value === report.id ? "bg-purple-600 hover:bg-purple-700" : "border-purple-200 text-slate-700 hover:border-purple-300"} onClick={() => {
+                    field.onChange(report.id);
+                    setActiveTab(report.id);
+                  }}>
+                            {report.name}
+                          </Button>)}
+                      </div>
+                    </FormItem>} />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="timeRange" render={({
+                  field
+                }) => <FormItem>
+                        <FormLabel className="text-slate-700 font-medium">Time Range</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="bg-slate-950 border-slate-700 text-white">
+                              <SelectValue placeholder="Select time range" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-slate-950 border-slate-700">
+                            <SelectItem value="day">Today</SelectItem>
+                            <SelectItem value="week">This Week</SelectItem>
+                            <SelectItem value="month">This Month</SelectItem>
+                            <SelectItem value="quarter">This Quarter</SelectItem>
+                            <SelectItem value="year">This Year</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>} />
+                  
+                  <FormField control={form.control} name="reportName" render={({
+                  field
+                }) => <FormItem>
+                        <FormLabel className="text-slate-700 font-medium">Report Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter report name" className="border-slate-700 bg-slate-950 text-white" {...field} />
+                        </FormControl>
+                      </FormItem>} />
                 </div>
                 
-                <div className="space-x-2">
-                  <Button 
-                    variant="outline"
-                    onClick={() => handleGenerateReport('pdf')}
-                    disabled={isGenerating}
-                  >
-                    <FileBarChart className="h-4 w-4 mr-2" />
-                    PDF
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="button" variant="outline" className="border-slate-200" onClick={() => form.reset()}>
+                    Reset
                   </Button>
-                  <Button 
-                    onClick={() => handleGenerateReport('csv')}
-                    disabled={isGenerating}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isGenerating ? (
-                      <>
+                  <Button type="submit" disabled={isGenerating} className="bg-purple-600 hover:bg-purple-700">
+                    {isGenerating ? <>
                         <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
                         Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4 mr-2" />
-                        Export CSV
-                      </>
-                    )}
+                      </> : <>
+                        <FileBarChart className="h-4 w-4 mr-2" />
+                        Generate Report
+                      </>}
                   </Button>
                 </div>
-              </div>
-            </Tabs>
+              </form>
+            </Form>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Report Options</CardTitle>
-            <CardDescription>
+        <Card className="border-purple-100 shadow-md">
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-purple-50 border-b border-purple-100">
+            <CardTitle className="text-slate-800">Report Options</CardTitle>
+            <CardDescription className="text-slate-600">
               Additional report configuration
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Include Data Points</label>
-                  <Select defaultValue="all">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select data points" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Data Points</SelectItem>
-                      <SelectItem value="summary">Summary Only</SelectItem>
-                      <SelectItem value="detailed">Detailed Analysis</SelectItem>
-                    </SelectContent>
-                  </Select>
+          <CardContent className="pt-6">
+            <Form {...form}>
+              <div className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="dataPoints" render={({
+                  field
+                }) => <FormItem>
+                        <FormLabel className="text-slate-700 font-medium">Include Data Points</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="bg-slate-950 border-slate-700 text-white">
+                              <SelectValue placeholder="Select data points" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-slate-950 border-slate-700">
+                            <SelectItem value="all">All Data Points</SelectItem>
+                            <SelectItem value="summary">Summary Only</SelectItem>
+                            <SelectItem value="detailed">Detailed Analysis</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>} />
+                  
+                  <FormField control={form.control} name="chartType" render={({
+                  field
+                }) => <FormItem>
+                        <FormLabel className="text-slate-700 font-medium">Chart Type</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="bg-slate-950 border-slate-700 text-white">
+                              <SelectValue placeholder="Select chart type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-slate-950 border-slate-700">
+                            <SelectItem value="bar">Bar Chart</SelectItem>
+                            <SelectItem value="line">Line Chart</SelectItem>
+                            <SelectItem value="pie">Pie Chart</SelectItem>
+                            <SelectItem value="area">Area Chart</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>} />
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Chart Type</label>
-                  <Select defaultValue="bar">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select chart type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bar">Bar Chart</SelectItem>
-                      <SelectItem value="line">Line Chart</SelectItem>
-                      <SelectItem value="pie">Pie Chart</SelectItem>
-                      <SelectItem value="area">Area Chart</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Data Grouping</label>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="border-blue-200 bg-blue-50 text-blue-700">Daily</Button>
-                  <Button variant="outline" size="sm">Weekly</Button>
-                  <Button variant="outline" size="sm">Monthly</Button>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Include in Report</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="includeCharts" className="rounded text-blue-600" defaultChecked />
-                    <label htmlFor="includeCharts" className="text-sm">Charts & Graphs</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="includeTables" className="rounded text-blue-600" defaultChecked />
-                    <label htmlFor="includeTables" className="text-sm">Data Tables</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="includeSummary" className="rounded text-blue-600" defaultChecked />
-                    <label htmlFor="includeSummary" className="text-sm">Executive Summary</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="includeRaw" className="rounded text-blue-600" />
-                    <label htmlFor="includeRaw" className="text-sm">Raw Data</label>
+                <div className="space-y-3">
+                  <FormLabel className="text-slate-700 font-medium">Data Grouping</FormLabel>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" className="border-purple-200 bg-purple-50 text-purple-700">Daily</Button>
+                    <Button variant="outline" size="sm" className="border-slate-200">Weekly</Button>
+                    <Button variant="outline" size="sm" className="border-slate-200">Monthly</Button>
                   </div>
                 </div>
+                
+                <div className="space-y-3">
+                  <FormLabel className="text-slate-700 font-medium">Include in Report</FormLabel>
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormField control={form.control} name="includeCharts" render={({
+                    field
+                  }) => <FormItem className="flex items-center space-x-2">
+                          <FormControl>
+                            <input type="checkbox" id="includeCharts" className="rounded text-purple-600 border-slate-300" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <label htmlFor="includeCharts" className="text-sm text-slate-700">Charts & Graphs</label>
+                        </FormItem>} />
+                    
+                    <FormField control={form.control} name="includeTables" render={({
+                    field
+                  }) => <FormItem className="flex items-center space-x-2">
+                          <FormControl>
+                            <input type="checkbox" id="includeTables" className="rounded text-purple-600 border-slate-300" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <label htmlFor="includeTables" className="text-sm text-slate-700">Data Tables</label>
+                        </FormItem>} />
+                    
+                    <FormField control={form.control} name="includeSummary" render={({
+                    field
+                  }) => <FormItem className="flex items-center space-x-2">
+                          <FormControl>
+                            <input type="checkbox" id="includeSummary" className="rounded text-purple-600 border-slate-300" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <label htmlFor="includeSummary" className="text-sm text-slate-700">Executive Summary</label>
+                        </FormItem>} />
+                    
+                    <FormField control={form.control} name="includeRaw" render={({
+                    field
+                  }) => <FormItem className="flex items-center space-x-2">
+                          <FormControl>
+                            <input type="checkbox" id="includeRaw" className="rounded text-purple-600 border-slate-300" checked={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <label htmlFor="includeRaw" className="text-sm text-slate-700">Raw Data</label>
+                        </FormItem>} />
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center pt-4">
+                  <Button type="button" variant="outline" onClick={() => handleGenerateReport('pdf')} disabled={isGenerating} className="border-purple-200 text-purple-700 hover:bg-purple-50">
+                    <FileBarChart className="h-4 w-4 mr-2" />
+                    PDF
+                  </Button>
+                  <Button type="button" onClick={() => handleGenerateReport('csv')} disabled={isGenerating} className="bg-violet-600 hover:bg-violet-500">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Form>
           </CardContent>
         </Card>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Report Preview</CardTitle>
-          <CardDescription>
+      <Card className="border-purple-100 shadow-md">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-purple-50 border-b border-purple-100">
+          <CardTitle className="text-slate-800">Report Preview</CardTitle>
+          <CardDescription className="text-slate-600">
             Preview of the {availableReports.find(r => r.id === activeTab)?.name} report
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px]">
-            <TabsContent value="userActivity" className="h-full mt-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={userActivityData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="logins" name="Logins" fill="#8884d8" />
-                  <Bar dataKey="lessonCompleted" name="Lessons Completed" fill="#82ca9d" />
-                  <Bar dataKey="quizTaken" name="Quizzes Taken" fill="#ffc658" />
-                </BarChart>
-              </ResponsiveContainer>
-            </TabsContent>
-            
-            <TabsContent value="contentEngagement" className="h-full mt-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={contentEngagementData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                  <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="views" name="Views" fill="#8884d8" />
-                  <Bar yAxisId="left" dataKey="completions" name="Completions" fill="#82ca9d" />
-                  <Line yAxisId="right" type="monotone" dataKey="ratings" name="Ratings (0-5)" stroke="#ff7300" />
-                </BarChart>
-              </ResponsiveContainer>
-            </TabsContent>
-            
-            <TabsContent value="userGrowth" className="h-full mt-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={userGrowthData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="users" name="Total Users" stroke="#8884d8" activeDot={{ r: 8 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </TabsContent>
-            
-            <TabsContent value="performance" className="h-full mt-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis domain={[50, 100]} />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="score" name="Average Score" stroke="#82ca9d" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </TabsContent>
-            
-            <TabsContent value="systemUsage" className="h-full mt-0">
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <FileBarChart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900">System Usage Report</h3>
-                  <p className="text-gray-500 max-w-md">
-                    This report provides detailed metrics on server load, response times, and resource utilization.
-                  </p>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="hidden">
+                <TabsTrigger value="userActivity">User Activity</TabsTrigger>
+                <TabsTrigger value="contentEngagement">Content Engagement</TabsTrigger>
+                <TabsTrigger value="userGrowth">User Growth</TabsTrigger>
+                <TabsTrigger value="performance">Performance</TabsTrigger>
+                <TabsTrigger value="systemUsage">System Usage</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="userActivity" className="h-full mt-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={userActivityData} margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5
+                }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="logins" name="Logins" fill="#9b87f5" />
+                    <Bar dataKey="lessonCompleted" name="Lessons Completed" fill="#7E69AB" />
+                    <Bar dataKey="quizTaken" name="Quizzes Taken" fill="#6E59A5" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+              
+              <TabsContent value="contentEngagement" className="h-full mt-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={contentEngagementData} margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5
+                }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis yAxisId="left" orientation="left" stroke="#9b87f5" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#7E69AB" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="views" name="Views" fill="#9b87f5" />
+                    <Bar yAxisId="left" dataKey="completions" name="Completions" fill="#7E69AB" />
+                    <Line yAxisId="right" type="monotone" dataKey="ratings" name="Ratings (0-5)" stroke="#6E59A5" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </TabsContent>
+              
+              <TabsContent value="userGrowth" className="h-full mt-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={userGrowthData} margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5
+                }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="users" name="Total Users" stroke="#9b87f5" activeDot={{
+                    r: 8
+                  }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </TabsContent>
+              
+              <TabsContent value="performance" className="h-full mt-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={performanceData} margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5
+                }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis domain={[50, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="score" name="Average Score" stroke="#7E69AB" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </TabsContent>
+              
+              <TabsContent value="systemUsage" className="h-full mt-0">
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <FileBarChart className="h-12 w-12 text-purple-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900">System Usage Report</h3>
+                    <p className="text-gray-500 max-w-md">
+                      This report provides detailed metrics on server load, response times, and resource utilization.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
+            </Tabs>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default GenerateReports;

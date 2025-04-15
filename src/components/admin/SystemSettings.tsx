@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -9,16 +10,19 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Settings, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
 const SystemSettings = () => {
   const {
     toast
   } = useToast();
+  
   const handleSaveSettings = () => {
     toast({
       title: "Settings Saved",
       description: "Your system settings have been updated successfully."
     });
   };
+  
   return <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight text-slate-950">System Settings</h2>
@@ -44,7 +48,7 @@ const SystemSettings = () => {
             <div className="space-y-2">
               <Label htmlFor="api-model">Speech Recognition Model</Label>
               <Select defaultValue="nova-2">
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-950 text-white">
                   <SelectValue placeholder="Select model" />
                 </SelectTrigger>
                 <SelectContent>
@@ -91,7 +95,7 @@ const SystemSettings = () => {
             <div className="space-y-2">
               <Label htmlFor="azure-region">Azure Region</Label>
               <Select defaultValue="eastus">
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-950 text-white">
                   <SelectValue placeholder="Select region" />
                 </SelectTrigger>
                 <SelectContent>
@@ -110,7 +114,7 @@ const SystemSettings = () => {
               <span className="text-sm text-muted-foreground">Normal</span>
             </div>
             <Select defaultValue="1.0">
-              <SelectTrigger>
+              <SelectTrigger className="bg-slate-950 text-white">
                 <SelectValue placeholder="Select speed" />
               </SelectTrigger>
               <SelectContent>
@@ -139,7 +143,7 @@ const SystemSettings = () => {
           <div className="space-y-2">
             <Label htmlFor="scoring-algorithm">Scoring Algorithm</Label>
             <Select defaultValue="comprehensive">
-              <SelectTrigger>
+              <SelectTrigger className="bg-slate-950 text-white">
                 <SelectValue placeholder="Select algorithm" />
               </SelectTrigger>
               <SelectContent>
@@ -176,4 +180,5 @@ const SystemSettings = () => {
       </div>
     </div>;
 };
+
 export default SystemSettings;
