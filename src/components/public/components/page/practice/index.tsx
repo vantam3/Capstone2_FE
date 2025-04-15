@@ -33,6 +33,8 @@ function Practice() {
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].code);
+  const [selectedLevel, setSelectedLevel] = useState(null); // Level được chọn
+  const [selectedTopic, setSelectedTopic] = useState(null); // Topic được chọn
   const router = useNavigate();
 
   return (
@@ -90,9 +92,18 @@ function Practice() {
           </div>
         </div>
         {activeTab === "tab_1" ? (
-          <ChooseTopic setActiveTab={setActiveTab} />
+          <ChooseTopic
+            setActiveTab={setActiveTab}
+            selectedLevel={selectedLevel}
+            selectedTopic={selectedTopic}
+            setSelectedLevel={setSelectedLevel}
+            setSelectedTopic={setSelectedTopic}
+          />
         ) : activeTab === "tab_2" ? (
-          <TakeTest />
+          <TakeTest
+            selectedLevel={selectedLevel}
+            selectedTopic={selectedTopic}
+          />
         ) : (
           <Result />
         )}
