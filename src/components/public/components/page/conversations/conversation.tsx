@@ -66,7 +66,7 @@ const ConversationPage: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-[8rem]">
       <div className="flex items-center text-gray-400 text-sm mb-4">
         <span
           className="hover:text-white transition-colors flex items-center cursor-pointer"

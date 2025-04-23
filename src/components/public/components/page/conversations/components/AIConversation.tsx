@@ -105,9 +105,9 @@ const AIConversation: React.FC = () => {
   };
 
   return (
-    <div className="conversation-container mb-8">
-      <div className="p-6">
-        <div className="flex items-center mb-4">
+    <div className="conversation-container mb-8 ">
+      <div className="p-6 border-[#2c1950] border bg-[#171422] rounded-[10px]">
+        <div className="flex items-center mb-4 ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-[#A78BFA] mr-3"
@@ -122,7 +122,7 @@ const AIConversation: React.FC = () => {
               d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 01-.659 1.591L9.5 14.5m0-11.313V3.1a1.125 1.125 0 011.125-1.125h3.75a1.125 1.125 0 011.125 1.125v.637m-1.5-1.5h3.75a1.125 1.125 0 011.125 1.125v.637m-1.5-1.5V8.57m-1.5 5.93V8.57"
             />
           </svg>
-          <h2 className="text-xl font-semibold ai-title-gradient">
+          <h2 className="text-xl font-semibold ai-title-gradient text-[#8465d0]">
             Hội thoại với AI
           </h2>
         </div>
