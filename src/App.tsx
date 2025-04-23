@@ -17,8 +17,7 @@ import Profile from "./components/public/components/page/account/profile";
 import Account from "./components/public/components/page/account";
 import PracticeHistory from "./components/public/components/page/practice/components/history";
 import PracticeV2 from "./components/public/components/page/practice-v2";
-import Conversation from "./components/public/components/page/practice/components/convertsation";
-
+import Conversation from "./components/public/components/page/conversations/conversation";
 const queryClient = new QueryClient();
 
 const App = () => (
