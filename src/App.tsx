@@ -17,6 +17,7 @@ import Profile from "./components/public/components/page/account/profile";
 import Account from "./components/public/components/page/account";
 import PracticeHistory from "./components/public/components/page/practice/components/history";
 import PracticeV2 from "./components/public/components/page/practice-v2";
+import Conversation from "./components/public/components/page/practice/components/convertsation";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="practice" element={<Practice />} />
             {/* <Route path="practice" element={<PracticeV2 />} /> */}
             <Route path="practice/history" element={<PracticeHistory />} />
+            <Route path="conversation" element={<Conversation />} />
             <Route path="challenges" element={<Challenges />} />
             <Route path="challenges/:slug" element={<ChallengeDetail />} />
             <Route path="leader-board" element={<Leaderboard />} />
