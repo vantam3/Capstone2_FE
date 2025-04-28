@@ -2,12 +2,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import axios from "axios";
 
 function SignIn({ setActiveTab }: any) {
   const SchemaLogin = yup.object({
-    userName: yup
+    username: yup
       .string()
-      .required("UserName is required")
+      .required("Username is required")
       .max(64, "Maximum 64 characters allowed"),
     password: yup
       .string()
@@ -15,7 +16,7 @@ function SignIn({ setActiveTab }: any) {
       .min(6, "Password must be at least 6 characters")
       .max(64, "Maximum 64 characters allowed"),
   });
-  const defaultValues = { userName: "", password: "" };
+  const defaultValues = { username: "", password: "" };
 
   const methods = useForm({
     resolver: yupResolver(SchemaLogin),
@@ -29,12 +30,40 @@ function SignIn({ setActiveTab }: any) {
   } = methods;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const onSubmitForm = () => {
+  const onSubmitForm = async (data: any) => {
     setIsLoading(true);
-    setTimeout(() => {
+    setErrorMessage(""); // Reset error message on new submission
+
+    try {
+      // Send login request to API
+      const response = await axios.post("http://localhost:8000/login/", {
+        username: data.username,
+        password: data.password,
+      });
+
+      // Save token to localStorage
+      localStorage.setItem("token", response.data.token);
+      
+      // Save user info if needed
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      // Redirect user to dashboard
+      alert("Login successful!");
+      window.location.href = "/dashboard";
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || "Login failed. Please try again.";
+      setErrorMessage(errorMsg);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleForgotPassword = () => {
+    // Implement forgot password functionality here
+    // For example, redirect to forgot password page or show a modal
+    alert("Forgot password functionality will be implemented soon.");
   };
 
   return (
@@ -58,15 +87,15 @@ function SignIn({ setActiveTab }: any) {
               </svg>
             </div>
             <input
-              {...register("userName")}
+              {...register("username")}
               type="text"
-              name="userName"
+              name="username"
               className="bg-[#010005] border placeholder:text-white border-[#4b2f8d] text-white focus:border-[#4b2f8d] focus:ring-[#4b2f8d] text-sm rounded-lg block w-full ps-10 p-2.5"
-              placeholder="Choose a username"
+              placeholder="Enter your username"
             />
           </div>
           <p className="text-xs text-red-600 mt-2">
-            {errors.userName?.message}
+            {errors.username?.message}
           </p>
         </div>
 
@@ -92,16 +121,24 @@ function SignIn({ setActiveTab }: any) {
               type="password"
               name="password"
               className="bg-[#010005] border placeholder:text-white border-[#4b2f8d] text-white focus:border-[#4b2f8d] focus:ring-[#4b2f8d] text-sm rounded-lg block w-full ps-10 p-2.5"
-              placeholder="Create a password"
+              placeholder="Enter your password"
             />
           </div>
           <p className="text-xs text-red-600 mt-2">
             {errors.password?.message}
           </p>
         </div>
-        <div className="text-right text-sm text-[#8861ea] cursor-pointer hover:underline">
+
+        <div 
+          className="text-right text-sm text-[#8861ea] cursor-pointer hover:underline"
+          onClick={handleForgotPassword}
+        >
           Forgot password?
         </div>
+
+        {errorMessage && (
+          <div className="mb-4 mt-2 text-red-600 text-sm">{errorMessage}</div>
+        )}
 
         <button
           disabled={isLoading}

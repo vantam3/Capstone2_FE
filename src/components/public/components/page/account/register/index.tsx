@@ -2,10 +2,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import axios from "axios";
 
 function Register({ setActiveTab }: any) {
   const RegisterSchema = yup.object({
-    userName: yup.string().required("userName is required"),
+    username: yup.string().required("Username is required"),
     email: yup
       .string()
       .required("Email is required")
@@ -16,18 +17,19 @@ function Register({ setActiveTab }: any) {
       .required("Password is required")
       .min(6, "Password must be at least 6 characters")
       .max(64, "Maximum 64 characters allowed"),
-    confirmPassword: yup
+    confirm_password: yup
       .string()
       .oneOf([yup.ref("password")], "Passwords must match")
       .required("Confirm Password is required")
       .min(6, "Confirm Password must be at least 6 characters")
       .max(64, "Maximum 64 characters allowed"),
   });
+
   const defaultValues = {
-    userName: "",
+    username: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirm_password: "",
   };
 
   const methods = useForm({
@@ -42,12 +44,30 @@ function Register({ setActiveTab }: any) {
   } = methods;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const onSubmitForm = () => {
+  const onSubmitForm = async (data: any) => {
     setIsLoading(true);
-    setTimeout(() => {
+    setErrorMessage("");
+    
+    try {
+      // API request for registering the user
+      const response = await axios.post("http://localhost:8000/register/", {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        confirm_password: data.confirm_password,
+      });
+      
+      alert("User registered successfully!");
+      setActiveTab("sign-in"); // Redirect to sign-in after successful registration
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || "Registration failed. Please try again.";
+      setErrorMessage(errorMsg);
+      alert(errorMsg);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -71,15 +91,15 @@ function Register({ setActiveTab }: any) {
               </svg>
             </div>
             <input
-              {...register("userName")}
+              {...register("username")}
               type="text"
-              name="userName"
+              name="username"
               className="bg-[#010005] border placeholder:text-white border-[#4b2f8d] text-white focus:border-[#4b2f8d] focus:ring-[#4b2f8d] text-sm rounded-lg block w-full ps-10 p-2.5"
               placeholder="Choose a username"
             />
           </div>
           <p className="text-red-600 mt-2 text-xs">
-            {errors.userName?.message}
+            {errors.username?.message}
           </p>
         </div>
         <div className="mb-5">
@@ -107,7 +127,7 @@ function Register({ setActiveTab }: any) {
               placeholder="Enter your email address"
             />
           </div>
-          <p className="text-red-600  mt-2 text-xs">{errors.email?.message}</p>
+          <p className="text-red-600 mt-2 text-xs">{errors.email?.message}</p>
         </div>
         <div className="mb-5">
           <label className="block mb-2 text-sm font-medium text-white">
@@ -134,11 +154,11 @@ function Register({ setActiveTab }: any) {
               placeholder="Create a password"
             />
           </div>
-          <p className="text-red-600  mt-2 text-xs">
+          <p className="text-red-600 mt-2 text-xs">
             {errors.password?.message}
           </p>
         </div>
-        <div className="mb-5 ">
+        <div className="mb-5">
           <label className="block mb-2 text-sm font-medium text-white">
             Confirm Password
           </label>
@@ -156,17 +176,20 @@ function Register({ setActiveTab }: any) {
               </svg>
             </div>
             <input
-              {...register("confirmPassword")}
+              {...register("confirm_password")}
               type="password"
-              name="confirmPassword"
+              name="confirm_password"
               className="bg-[#010005] border placeholder:text-white border-[#4b2f8d] text-white focus:border-[#4b2f8d] focus:ring-[#4b2f8d] text-sm rounded-lg block w-full ps-10 p-2.5"
               placeholder="Confirm your password"
             />
           </div>
           <p className="text-red-600 mt-2 text-xs">
-            {errors.confirmPassword?.message}
+            {errors.confirm_password?.message}
           </p>
         </div>
+        {errorMessage && (
+          <div className="mb-4 text-red-600 text-sm">{errorMessage}</div>
+        )}
         <button
           disabled={isLoading}
           type="submit"
