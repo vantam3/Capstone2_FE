@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface Message {
@@ -11,7 +10,6 @@ interface Message {
 }
 
 const AIConversation: React.FC = () => {
-  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -56,23 +54,27 @@ const AIConversation: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const sendMessage = async () => {
-    if (message.trim() === "" || isProcessing) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: message,
-      sender: "user",
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setMessage("");
+  const handleAudioInput = async () => {
+    if (isProcessing) return;
     setIsProcessing(true);
 
-    try {
-      const response = await sendMessageToAI(message);
+    // Giả lập ghi âm và gửi tin nhắn cho AI (bạn có thể thay thế bằng API ghi âm thực tế)
+    const audioMessage = "I would like to order a cup of coffee, please."; // Ví dụ tin nhắn ghi âm
 
-      // Thêm phản hồi của AI
+    // Thêm tin nhắn của người dùng vào giao diện
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        text: audioMessage,
+        sender: "user",
+      },
+    ]);
+
+    try {
+      const response = await sendMessageToAI(audioMessage);
+
+      // Thêm phản hồi của AI vào giao diện sau khi AI trả lời
       setMessages((prev) => [
         ...prev,
         {
@@ -95,12 +97,6 @@ const AIConversation: React.FC = () => {
       ]);
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      sendMessage();
     }
   };
 
@@ -238,21 +234,24 @@ const AIConversation: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="flex items-center">
-          <Input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="mr-4"
-            placeholder="Nhập tin nhắn..."
-          />
+        {/* Button ghi âm */}
+        <div className="flex justify-center">
           <Button
-            onClick={sendMessage}
-            disabled={isProcessing || !message.trim()}
+            onClick={handleAudioInput}
+            disabled={isProcessing}
+            className={`bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+              isProcessing ? "animate-pulse" : ""
+            }`}
           >
-            Gửi
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm4.5-3a4.5 4.5 0 0 1-9 0H6a6 6 0 0 0 12 0h-1.5zM11 17.9V20h2v-2.1a8.001 8.001 0 0 0 6.708-7.4H17.5a6.5 6.5 0 0 1-13 0H4.292a8.001 8.001 0 0 0 6.708 7.4z" />
+            </svg>
+            Ghi âm
           </Button>
         </div>
       </div>
