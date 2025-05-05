@@ -14,19 +14,18 @@ const AIConversation: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Dữ liệu tĩnh
+  // Static data
   const sendMessageToAI = async (message: string) => {
-    // Giả lập phản hồi từ AI
+    // Simulate a response from AI
     return new Promise<{ message: string; score?: number; errors?: string[] }>(
       (resolve) => {
         setTimeout(() => {
           resolve({
-            message:
-              'AI: Tôi đã nhận được tin nhắn của bạn: "' + message + '".',
+            message: 'AI: I received your message: "' + message + '".',
             score: 85,
             errors: message.includes("coffee")
               ? []
-              : ["Phát âm từ 'coffee' chưa đúng."],
+              : ["The word 'coffee' is not pronounced correctly."],
           });
         }, 1000);
       }
@@ -38,12 +37,12 @@ const AIConversation: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    // Chào AI lần đầu tiên
+    // Greet AI for the first time
     if (messages.length === 0) {
       setMessages([
         {
           id: Date.now().toString(),
-          text: 'Xin chào! Tôi là trợ lý AI. Hãy nói câu "I would like to order a cup of coffee, please." để luyện tập.',
+          text: 'Hello! I am the AI assistant. Please say "I would like to order a cup of coffee, please." to practice.',
           sender: "ai",
         },
       ]);
@@ -58,10 +57,10 @@ const AIConversation: React.FC = () => {
     if (isProcessing) return;
     setIsProcessing(true);
 
-    // Giả lập ghi âm và gửi tin nhắn cho AI (bạn có thể thay thế bằng API ghi âm thực tế)
-    const audioMessage = "I would like to order a cup of coffee, please."; // Ví dụ tin nhắn ghi âm
+    // Simulate recording and sending a message to AI (you can replace this with an actual recording API)
+    const audioMessage = "I would like to order a cup of coffee, please."; // Example of an audio message
 
-    // Thêm tin nhắn của người dùng vào giao diện
+    // Add the user's message to the interface
     setMessages((prev) => [
       ...prev,
       {
@@ -74,7 +73,7 @@ const AIConversation: React.FC = () => {
     try {
       const response = await sendMessageToAI(audioMessage);
 
-      // Thêm phản hồi của AI vào giao diện sau khi AI trả lời
+      // Add AI's response to the interface after AI replies
       setMessages((prev) => [
         ...prev,
         {
@@ -91,7 +90,7 @@ const AIConversation: React.FC = () => {
         ...prev,
         {
           id: (Date.now() + 1).toString(),
-          text: "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau.",
+          text: "Sorry, an error occurred. Please try again later.",
           sender: "ai",
         },
       ]);
@@ -119,13 +118,13 @@ const AIConversation: React.FC = () => {
             />
           </svg>
           <h2 className="text-xl font-semibold ai-title-gradient text-[#8465d0]">
-            Hội thoại với AI
+            Conversation with AI
           </h2>
         </div>
 
         <p className="text-gray-300 mb-4">
-          Luyện tập các kỹ năng giao tiếp với trợ lý AI thông minh. AI sẽ hỗ trợ
-          luyện phát âm và phản hồi ngay lập tức.
+          Practice communication skills with the smart AI assistant. The AI will
+          help practice pronunciation and provide instant feedback.
         </p>
 
         {/* Chat Interface */}
@@ -167,7 +166,7 @@ const AIConversation: React.FC = () => {
                 msg.errors &&
                 msg.errors.length > 0 ? (
                   <div>
-                    {/* Hiển thị tin nhắn với lỗi được highlight */}
+                    {/* Show message with highlighted errors */}
                     {msg.text.split(" ").map((word, index) => {
                       return (
                         <span key={index} className="mr-1">
@@ -198,12 +197,13 @@ const AIConversation: React.FC = () => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Phát âm {msg.score >= 80 ? "tốt" : "cần cải thiện"}:{" "}
+                    Pronunciation{" "}
+                    {msg.score >= 80 ? "good" : "needs improvement"}:{" "}
                     {msg.score}%
                     {msg.errors && msg.errors.length > 0 && (
                       <span className="ml-1 text-red-400">
                         {" "}
-                        - {msg.errors.length} lỗi phát âm
+                        - {msg.errors.length} pronunciation errors
                       </span>
                     )}
                   </div>
@@ -234,7 +234,7 @@ const AIConversation: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Button ghi âm */}
+        {/* Record Button */}
         <div className="flex justify-center">
           <Button
             onClick={handleAudioInput}
@@ -251,7 +251,7 @@ const AIConversation: React.FC = () => {
             >
               <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm4.5-3a4.5 4.5 0 0 1-9 0H6a6 6 0 0 0 12 0h-1.5zM11 17.9V20h2v-2.1a8.001 8.001 0 0 0 6.708-7.4H17.5a6.5 6.5 0 0 1-13 0H4.292a8.001 8.001 0 0 0 6.708 7.4z" />
             </svg>
-            Ghi âm
+            Record
           </Button>
         </div>
       </div>

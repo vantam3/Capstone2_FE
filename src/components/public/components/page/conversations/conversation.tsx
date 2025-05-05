@@ -20,13 +20,14 @@ const PronunciationError: React.FC<PronunciationErrorProps> = ({
           variant="outline"
           className="bg-red-500 bg-opacity-10 text-red-400 border-red-500"
         >
-          Lỗi phát âm
+          Pronunciation Error
         </Badge>
       </div>
       <h3 className="text-lg font-medium mb-1 text-white">{text}</h3>
       <p className="text-gray-400 mb-2">{errorDescription}</p>
       <div className="bg-[#1E1A2B] p-3 rounded-md border-l-2 border-[#A78BFA]">
-        <span className="text-[#A78BFA] font-medium">Gợi ý:</span> {suggestion}
+        <span className="text-[#A78BFA] font-medium">Suggestion:</span>{" "}
+        {suggestion}
       </div>
     </div>
   );
@@ -35,33 +36,36 @@ const PronunciationError: React.FC<PronunciationErrorProps> = ({
 const ConversationPage: React.FC = () => {
   const pronunciationErrors: PronunciationErrorProps[] = [
     {
-      text: "Th sound /θ/ (như trong 'think', 'three')",
-      errorDescription: "Người Việt thường phát âm 't' thay vì âm 'th' (/θ/).",
-      suggestion: "Đặt lưỡi giữa răng và thổi nhẹ khi phát âm 'th'.",
+      text: "Th sound /θ/ (like in 'think', 'three')",
+      errorDescription:
+        "Vietnamese speakers often pronounce 't' instead of 'th' (/θ/).",
+      suggestion:
+        "Place the tongue between your teeth and blow lightly when pronouncing 'th'.",
     },
     {
-      text: "Phụ âm cuối /t/, /d/, /k/, /p/ (như trong 'cat', 'bad')",
-      errorDescription: "Thường bỏ qua hoặc phát âm không rõ các phụ âm cuối.",
+      text: "Final consonants /t/, /d/, /k/, /p/ (like in 'cat', 'bad')",
+      errorDescription: "Often skip or mispronounce final consonants.",
       suggestion:
-        "Tập trung vào việc phát âm rõ ràng phụ âm cuối, đặc biệt khi nó là âm vô thanh như /t/, /k/, /p/.",
+        "Focus on clearly pronouncing the final consonants, especially when they are voiceless like /t/, /k/, /p/.",
     },
     {
-      text: "Nguyên âm dài và ngắn (ship vs sheep)",
-      errorDescription: "Không phân biệt được giữa /ɪ/ (ngắn) và /i:/ (dài).",
+      text: "Short and long vowels (ship vs sheep)",
+      errorDescription:
+        "Can't differentiate between /ɪ/ (short) and /i:/ (long).",
       suggestion:
-        "Luyện tập các cặp từ như ship/sheep, bit/beat để phân biệt độ dài của nguyên âm.",
+        "Practice pairs like ship/sheep, bit/beat to distinguish the vowel length.",
     },
     {
-      text: "Âm /r/ (như trong 'red', 'very')",
-      errorDescription: "Lẫn lộn với âm /z/ hoặc /l/ trong tiếng Việt.",
+      text: "The /r/ sound (like in 'red', 'very')",
+      errorDescription: "Confused with /z/ or /l/ in Vietnamese.",
       suggestion:
-        "Đặt đầu lưỡi gần vòm miệng phía trên nhưng không chạm, để hơi thoát ra giữa lưỡi và vòm miệng.",
+        "Place the tip of your tongue near the roof of your mouth but don't touch it, letting air escape between your tongue and the roof of your mouth.",
     },
     {
-      text: "Trọng âm từ và câu",
-      errorDescription: "Phát âm tất cả các âm tiết với cùng trọng lượng.",
+      text: "Word and sentence stress",
+      errorDescription: "Pronouncing all syllables with equal stress.",
       suggestion:
-        "Tập trung vào việc nhấn mạnh âm tiết có trọng âm và phát âm nhẹ các âm tiết khác.",
+        "Focus on stressing the syllable with primary stress and pronounce other syllables lightly.",
     },
   ];
 
@@ -86,17 +90,17 @@ const ConversationPage: React.FC = () => {
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          Quay lại trang chủ
+          Go back to the homepage
         </span>
       </div>
 
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#A78BFA] to-[#5B21B6]">
-          Hội thoại với AI và cải thiện phát âm
+          Chat with AI and Improve Your Pronunciation
         </h1>
         <p className="text-gray-300 max-w-2xl mx-auto">
-          Luyện tập phát âm và giao tiếp tiếng Anh với trợ lý AI thông minh.
-          Nhận phản hồi ngay lập tức và cải thiện kỹ năng của bạn.
+          Practice English pronunciation and communication with the smart AI
+          assistant. Get instant feedback and improve your skills.
         </p>
       </div>
 
@@ -122,7 +126,7 @@ const ConversationPage: React.FC = () => {
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Lỗi phát âm phổ biến
+              Common Pronunciation Errors
             </h2>
             <div className="space-y-4 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
               {pronunciationErrors.map((err, idx) => (
