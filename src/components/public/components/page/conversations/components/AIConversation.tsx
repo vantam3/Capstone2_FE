@@ -7,42 +7,29 @@ interface Message {
   sender: "user" | "ai";
   score?: number;
   errors?: string[];
+  audioUrl?: string;
 }
 
 const AIConversation: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [userAudioUrl, setUserAudioUrl] = useState<string | null>(null);
 
-  // Static data
-  const sendMessageToAI = async (message: string) => {
-    // Simulate a response from AI
-    return new Promise<{ message: string; score?: number; errors?: string[] }>(
-      (resolve) => {
-        setTimeout(() => {
-          resolve({
-            message: 'AI: I received your message: "' + message + '".',
-            score: 85,
-            errors: message.includes("coffee")
-              ? []
-              : ["The word 'coffee' is not pronounced correctly."],
-          });
-        }, 1000);
-      }
-    );
-  };
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
-    // Greet AI for the first time
     if (messages.length === 0) {
       setMessages([
         {
           id: Date.now().toString(),
-          text: 'Hello! I am the AI assistant. Please say "I would like to order a cup of coffee, please." to practice.',
+          text: 'Hello! How can I assist you today?',
           sender: "ai",
         },
       ]);
@@ -53,206 +40,159 @@ const AIConversation: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleAudioInput = async () => {
-    if (isProcessing) return;
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    audioChunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      audioChunksRef.current.push(event.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      setRecordedBlob(audioBlob);
+      setUserAudioUrl(URL.createObjectURL(audioBlob));
+    };
+
+    mediaRecorder.start();
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+  };
+
+  const handleSendToBackend = async () => {
+    if (!recordedBlob) {
+      alert("Please record your voice first.");
+      return;
+    }
+
     setIsProcessing(true);
-
-    // Simulate recording and sending a message to AI (you can replace this with an actual recording API)
-    const audioMessage = "I would like to order a cup of coffee, please."; // Example of an audio message
-
-    // Add the user's message to the interface
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        text: audioMessage,
-        sender: "user",
-      },
-    ]);
+    const formData = new FormData();
+    formData.append("audio_file", new File([recordedBlob], "user_audio.webm"));
 
     try {
-      const response = await sendMessageToAI(audioMessage);
+      const res = await fetch("http://127.0.0.1:8000/api/dialogue/", {
+        method: "POST",
+        body: formData,
+      });
 
-      // Add AI's response to the interface after AI replies
+      const data = await res.json();
+
+      const aiMessageId = Date.now().toString();
+
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
-          text: response.message,
+          id: aiMessageId,
+          text: data.ai_text || "AI feedback",
           sender: "ai",
-          score: response.score,
-          errors: response.errors,
+          score: data.score,
+          errors: data.errors,
+          audioUrl: data.ai_audio_url || "",
         },
       ]);
+
+      if (data.ai_audio_url) {
+        const audio = new Audio(data.ai_audio_url);
+        audio.play().catch((err) => console.warn("Lỗi phát âm thanh AI:", err));
+      }
     } catch (error) {
       console.error("Error sending message to AI:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          text: "Sorry, an error occurred. Please try again later.",
-          sender: "ai",
-        },
-      ]);
+      alert("Something went wrong.");
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="conversation-container mb-8 ">
+    <div className="conversation-container mb-8">
       <div className="p-6 border-[#2c1950] border bg-[#171422] rounded-[10px]">
-        <div className="flex items-center mb-4 ">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-[#A78BFA] mr-3"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 01-.659 1.591L9.5 14.5m0-11.313V3.1a1.125 1.125 0 011.125-1.125h3.75a1.125 1.125 0 011.125 1.125v.637m-1.5-1.5h3.75a1.125 1.125 0 011.125 1.125v.637m-1.5-1.5V8.57m-1.5 5.93V8.57"
-            />
-          </svg>
-          <h2 className="text-xl font-semibold ai-title-gradient text-[#8465d0]">
+        <div className="flex items-center mb-4">
+          <h2 className="text-xl font-semibold text-[#8465d0]">
             Conversation with AI
           </h2>
         </div>
 
-        <p className="text-gray-300 mb-4">
-          Practice communication skills with the smart AI assistant. The AI will
-          help practice pronunciation and provide instant feedback.
-        </p>
-
-        {/* Chat Interface */}
         <div className="bg-[#13111C] rounded-lg mb-4 p-4 h-64 overflow-y-auto custom-scrollbar">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex mb-4 ${
-                msg.sender === "user" ? "justify-end" : ""
-              }`}
+              className={`flex mb-4 ${msg.sender === "user" ? "justify-end" : ""}`}
             >
-              {msg.sender === "ai" && (
-                <div className="w-8 h-8 rounded-full bg-[#8B5CF6] flex items-center justify-center mr-3 flex-shrink-0">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-              )}
-
               <div
-                className={`conversation-message ${
-                  msg.sender === "user"
-                    ? "conversation-user-message"
-                    : "conversation-ai-message"
-                } p-3 max-w-[80%]`}
+                className={`p-3 max-w-[80%] rounded-lg text-white ${
+                  msg.sender === "user" ? "bg-purple-600" : "bg-gray-700"
+                }`}
               >
-                {msg.sender === "user" &&
-                msg.errors &&
-                msg.errors.length > 0 ? (
-                  <div>
-                    {/* Show message with highlighted errors */}
-                    {msg.text.split(" ").map((word, index) => {
-                      return (
-                        <span key={index} className="mr-1">
-                          {word}
-                        </span>
-                      );
-                    })}
-                  </div>
-                ) : (
+                <div className="flex items-center gap-2">
                   <p>{msg.text}</p>
-                )}
-
-                {msg.sender === "user" && msg.score !== undefined && (
-                  <div className="mt-2 text-xs text-gray-400 flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={`h-4 w-4 mr-1 ${
-                        msg.score >= 80 ? "text-green-500" : "text-yellow-500"
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                  {msg.sender === "ai" && msg.audioUrl && (
+                    <button
+                      onClick={() => {
+                        const audio = new Audio(msg.audioUrl);
+                        audio.play().catch((err) =>
+                          console.warn("Replay error:", err)
+                        );
+                      }}
+                      className="ml-2 text-sm text-white hover:text-purple-300"
+                      title="Replay AI Voice"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Pronunciation{" "}
-                    {msg.score >= 80 ? "good" : "needs improvement"}:{" "}
-                    {msg.score}%
-                    {msg.errors && msg.errors.length > 0 && (
-                      <span className="ml-1 text-red-400">
-                        {" "}
-                        - {msg.errors.length} pronunciation errors
-                      </span>
-                    )}
-                  </div>
+                      🔊
+                    </button>
+                  )}
+                </div>
+                {msg.score !== undefined && (
+                  <p className="text-sm mt-1 text-gray-300">
+                    Pronunciation Score: {msg.score}%
+                  </p>
+                )}
+                {msg.errors && msg.errors.length > 0 && (
+                  <p className="text-sm text-red-400 mt-1">
+                    Errors: {msg.errors.join(", ")}
+                  </p>
                 )}
               </div>
-
-              {msg.sender === "user" && (
-                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center ml-3 flex-shrink-0">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-              )}
             </div>
           ))}
-
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Record Button */}
-        <div className="flex justify-center">
+        {/* Controls */}
+        <div className="flex justify-center gap-4 mt-4">
           <Button
-            onClick={handleAudioInput}
+            onClick={startRecording}
             disabled={isProcessing}
-            className={`bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-              isProcessing ? "animate-pulse" : ""
-            }`}
+            className="bg-blue-600 text-white"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm4.5-3a4.5 4.5 0 0 1-9 0H6a6 6 0 0 0 12 0h-1.5zM11 17.9V20h2v-2.1a8.001 8.001 0 0 0 6.708-7.4H17.5a6.5 6.5 0 0 1-13 0H4.292a8.001 8.001 0 0 0 6.708 7.4z" />
-            </svg>
             Record
           </Button>
+          <Button
+            onClick={stopRecording}
+            disabled={isProcessing}
+            className="bg-yellow-600 text-white"
+          >
+            Stop
+          </Button>
+          <Button
+            onClick={handleSendToBackend}
+            disabled={isProcessing || !recordedBlob}
+            className="bg-green-600 text-white"
+          >
+            Send
+          </Button>
+        </div>
+
+        {/* Playback */}
+        <div className="mt-4 space-y-2">
+          {userAudioUrl && (
+            <div>
+              <p className="text-sm text-white mb-1">Your Recording:</p>
+              <audio controls src={userAudioUrl} className="w-full" />
+            </div>
+          )}
         </div>
       </div>
     </div>
