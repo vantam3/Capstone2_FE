@@ -1,59 +1,57 @@
-import {
-  BellIcon,
-  GlobeAltIcon,
-  LockClosedIcon,
-  UserIcon,
-} from "@heroicons/react/24/outline";
-import { useNavigate, useSearchParams } from "react-router-dom";
-
-function Sidebar() {
-  const menu = [
-    {
-      name: "Personal information",
-      path: "personal-information",
-      icon: <UserIcon className="w-4 h-4 text-white" />,
-    },
-    {
-      name: "Security",
-      path: "security",
-      icon: <LockClosedIcon className="w-4 h-4 text-white" />,
-    },
-    {
-      name: "Language",
-      path: "language",
-      icon: <GlobeAltIcon className="w-4 h-4 text-white" />,
-    },
-    {
-      name: "Notification",
-      path: "notification",
-      icon: <BellIcon className="w-4 h-4 text-white" />,
-    },
-  ];
-
-  const router = useNavigate();
-  const [searchParams] = useSearchParams();
-  const pathParams = searchParams.get("path");
-  const activePath = pathParams || menu[0].path;
-
-  return (
-    <>
-      <div className="w-full bg-[#170a38] border border-[#2d1c65] rounded-[16px] mt-4 shadow-sm p-4 space-y-2">
-        <p className="text-white text-lg font-bold">Account settings</p>
-        {menu.map((item) => (
-          <div
-            className={`${
-              item.path === activePath ? "bg-[#4c2e90]" : ""
-            } hover:bg-[#4c2e90] cursor-pointer p-2 gap-1 flex items-center rounded-[8px]`}
-            key={item.path}
-            onClick={() => router(`/public/profile?path=${item.path}`)}
-          >
-            {item.icon}
-            <p className="text-base text-white sm:text-sm">{item.name}</p>
-          </div>
-        ))}
-      </div>
-    </>
-  );
+interface SidebarProps {
+  user: { avatarUrl: string; username: string };
+  activePage: string;
+  onPageChange: (page: string) => void;
+  onLogout: () => void;
 }
 
-export default Sidebar;
+export function SimpleSidebar({
+  user,
+  activePage,
+  onPageChange,
+  onLogout,
+}: SidebarProps) {
+  return (
+    <div className="bg-[rgb(50,52,77/var(--tw-bg-opacity,1))] border border-[#2d1c65] rounded-[16px] p-4 shadow-sm">
+      {/* User Info */}
+      <div className="flex items-center space-x-4 mb-6">
+        <img
+          src={user.avatarUrl}
+          alt="User Avatar"
+          className="w-12 h-12 rounded-full"
+        />
+        <div className="text-white">
+          <p className="font-medium">{user.username}</p>
+        </div>
+      </div>
+
+      {/* Sidebar Menu */}
+      <div className="space-y-2">
+        <button
+          onClick={() => onPageChange("profile")}
+          className={`w-full text-left px-4 py-2 text-white flex items-center rounded-[8px] ${
+            activePage === "profile" ? "bg-[#4c2e90]" : ""
+          } hover:bg-[#4c2e90]`}
+        >
+          Profile Information
+        </button>
+
+        <button
+          onClick={() => onPageChange("history")}
+          className={`w-full text-left px-4 py-2 text-white flex items-center rounded-[8px] ${
+            activePage === "history" ? "bg-[#4c2e90]" : ""
+          } hover:bg-[#4c2e90]`}
+        >
+          Activity History
+        </button>
+
+        <button
+          onClick={onLogout}
+          className="w-full text-left px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-[8px]"
+        >
+          Log out
+        </button>
+      </div>
+    </div>
+  );
+}

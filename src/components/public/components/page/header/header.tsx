@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 const navigation = [
   { name: "Home", href: "/home" },
   { name: "Practice", href: "/practice" },
+  { name: "Conversation", href: "/conversation" },
   { name: "Challenges", href: "/challenges" },
   { name: "Leaderboard", href: "/leader-board" },
   { name: "About", href: "/about" },
