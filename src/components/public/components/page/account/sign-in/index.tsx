@@ -45,7 +45,7 @@ function SignIn({ setActiveTab }: any) {
 
     try {
       // Send login request to API
-      const response = await axios.post("http://localhost:8000/login/", {
+      const response = await axios.post("http://localhost:8000/login/", { // Đảm bảo URL này đúng với API login của bạn
         username: data.username,
         password: data.password,
       });
@@ -54,11 +54,18 @@ function SignIn({ setActiveTab }: any) {
       localStorage.setItem("token", response.data.token);
       
       // Save user info if needed
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      const user = response.data.user; // Lấy thông tin người dùng từ response
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // Redirect user to dashboard
       alert("Login successful!");
-      window.location.href = "/dashboard";
+
+      // KIỂM TRA NẾU LÀ ADMIN THÌ CHUYỂN HƯỚNG ĐẾN /admin
+      if (user && user.is_superuser) {
+        window.location.href = "/admin"; // Chuyển hướng admin đến trang /admin
+      } else {
+        window.location.href = "/"; // Chuyển hướng người dùng thường đến trang chủ
+      }
+
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || "Login failed. Please try again.";
       setErrorMessage(errorMsg);
