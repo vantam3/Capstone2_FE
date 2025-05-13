@@ -1,12 +1,27 @@
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+const GENRE_MAP = {
+  1: "Introductions",
+  2: "Job Interview",
+  3: "Travel",
+  4: "Friendship",
+  5: "Daily Life",
+  9: "Miscellaneous",
+  10: "Updated Topic"
+};
+
+const LEVEL_MAP = {
+  1: "Beginner",
+  2: "Intermediate",
+  3: "Advanced"
+};
 
 function CurrentResult({ score, user_text, original_text, topicName, levelName, examTime }) {
   return (
     <div className="mt-8">
       <h3 className="text-white text-xl mt-4 font-bold">Speaking Result</h3>
       <div className="mt-4">
-        <p>Topic: {topicName}</p>
-        <p>Level: {levelName}</p>
+        <p>Topic: {GENRE_MAP[topicName] || topicName}</p>
+        <p>Level: {LEVEL_MAP[levelName] || levelName}</p>
         <p>Exam time: {examTime}</p>
       </div>
 

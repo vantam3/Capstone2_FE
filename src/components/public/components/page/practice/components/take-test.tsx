@@ -16,6 +16,21 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
   const [audioBlob, setAudioBlob] = useState(null);
   const [isRecordingIndicatorVisible, setIsRecordingIndicatorVisible] = useState(false);
   const [audioPlayer, setAudioPlayer] = useState(null);
+const GENRE_MAP = {
+  1: "Introductions",
+  2: "Job Interview",
+  3: "Travel",
+  4: "Friendship",
+  5: "Daily Life",
+  9: "Miscellaneous",
+  10: "Updated Topic"
+};
+
+const LEVEL_MAP = {
+  1: "Beginner",
+  2: "Intermediate",
+  3: "Advanced"
+};
 
   useEffect(() => {
     if (selectedLevel && selectedTopic) {
@@ -148,8 +163,12 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
     <>
       <div className="mt-8">
         <h3>Practice Pronunciation</h3>
-        <h3 className="text-gray-400 mt-2">Topic: {selectedTopic}</h3>
-        <h3 className="text-gray-400 mt-2">Level: {selectedLevel}</h3>
+        <h3 className="text-gray-400 mt-2">
+          Topic: {GENRE_MAP[selectedTopic] || selectedTopic}
+        </h3>
+        <h3 className="text-gray-400 mt-2">
+          Level: {LEVEL_MAP[selectedLevel] || selectedLevel}
+        </h3>
         <div className="flex items-center mt-2">
           <h3 className="text-gray-400">Progress</h3>
           <h3 className="text-gray-400 ml-auto">1/1 question</h3>
@@ -175,9 +194,10 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
               <h5 className="mb-2 text-lg text-white font-semibold">
                 Practice pronunciation with the following sentence:
               </h5>
-              <p className="mb-5 text-white text-lg font-semibold bg-[#2d1674] border border-[#2d1674] rounded-[10px] sm:p-2">
+              <div className="mb-5 text-white text-lg font-semibold bg-[#2d1674] border border-[#2d1674] rounded-[10px] sm:p-2 whitespace-pre-line">
                 {question ? question.content : "Loading..."}
-              </p>
+              </div>
+
 
               <button
                 onClick={handlePlayAudio}

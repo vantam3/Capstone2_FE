@@ -1,3 +1,4 @@
+// components/AIConversation.tsx
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +20,10 @@ const AIConversation: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const sharedAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [currentAudioSrc, setCurrentAudioSrc] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -80,7 +85,6 @@ const AIConversation: React.FC = () => {
       });
 
       const data = await res.json();
-
       const aiMessageId = Date.now().toString();
 
       setMessages((prev) => [
@@ -94,11 +98,17 @@ const AIConversation: React.FC = () => {
           audioUrl: data.ai_audio_url || "",
         },
       ]);
-
+      
       if (data.ai_audio_url) {
-        const audio = new Audio(data.ai_audio_url);
-        audio.play().catch((err) => console.warn("Lỗi phát âm thanh AI:", err));
+        setCurrentAudioSrc(data.ai_audio_url);
+        setIsPlaying(true);
+        setTimeout(() => {
+          sharedAudioRef.current?.play().catch((err) =>
+            console.warn("Auto-play error:", err)
+          );
+        }, 100);
       }
+      
     } catch (error) {
       console.error("Error sending message to AI:", error);
       alert("Something went wrong.");
@@ -128,14 +138,15 @@ const AIConversation: React.FC = () => {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <p>{msg.text}</p>
-                  {msg.sender === "ai" && msg.audioUrl && (
+                <p className="whitespace-pre-line">{msg.text}</p>
+                {msg.sender === "ai" && msg.audioUrl && (
                     <button
                       onClick={() => {
-                        const audio = new Audio(msg.audioUrl);
-                        audio.play().catch((err) =>
-                          console.warn("Replay error:", err)
-                        );
+                        if (msg.audioUrl) {
+                          setCurrentAudioSrc(msg.audioUrl);
+                          setIsPlaying(true);
+                          setTimeout(() => sharedAudioRef.current?.play(), 0);
+                        }
                       }}
                       className="ml-2 text-sm text-white hover:text-purple-300"
                       title="Replay AI Voice"
@@ -160,7 +171,21 @@ const AIConversation: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Controls */}
+        {isPlaying && (
+          <div className="flex justify-center mt-4">
+            <Button
+              onClick={() => {
+                sharedAudioRef.current?.pause();
+                sharedAudioRef.current!.currentTime = 0;
+                setIsPlaying(false);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Stop AI Voice
+            </Button>
+          </div>
+        )}
+
         <div className="flex justify-center gap-4 mt-4">
           <Button
             onClick={startRecording}
@@ -185,7 +210,6 @@ const AIConversation: React.FC = () => {
           </Button>
         </div>
 
-        {/* Playback */}
         <div className="mt-4 space-y-2">
           {userAudioUrl && (
             <div>
@@ -194,6 +218,14 @@ const AIConversation: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Hidden shared audio for AI */}
+        <audio
+          ref={sharedAudioRef}
+          src={currentAudioSrc || undefined}
+          onEnded={() => setIsPlaying(false)}
+          onPause={() => setIsPlaying(false)}
+        />
       </div>
     </div>
   );

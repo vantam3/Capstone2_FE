@@ -38,7 +38,7 @@ const App = () => (
             <Route path="challenges/:slug" element={<ChallengeDetail />} />
             <Route path="leader-board" element={<Leaderboard />} />
             <Route path="about" element={<About />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="/profile/:id" element={<Profile />} />
 
           </Route>
           <Route path="/sign-in" element={<Account />} />

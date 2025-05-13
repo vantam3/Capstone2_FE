@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { SimpleAvatarUpload } from "@/components/ui/avatar-upload";
 
 interface User {
@@ -11,82 +12,75 @@ interface User {
 }
 
 interface SimpleUserInfoProps {
-  user: User;
+  userId: number;
   onUserUpdated: (updatedUser: User) => void;
 }
 
-export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
-  const [formData, setFormData] = useState({
-    fullName: user.fullName || "",
-    email: user.email || "",
-    phone: user.phone || "",
-    avatarUrl: user.avatarUrl || "",
-  });
+export function SimpleUserInfo({ userId, onUserUpdated }: SimpleUserInfoProps) {
+  const [formData, setFormData] = useState<User | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
 
+  useEffect(() => {
+    axios.get(`http://127.0.0.1:8000/users/${userId}/`)
+      .then((res) => setFormData(res.data))
+      .catch(() =>
+        setMessage({ text: "Failed to load user info", type: "error" })
+      );
+  }, [userId]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (!formData) return;
+    setFormData(prev => ({ ...prev!, [name]: value }));
   };
 
   const handleAvatarChange = (dataUrl: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      avatarUrl: dataUrl,
-    }));
+    if (!formData) return;
+    setFormData(prev => ({ ...prev!, avatarUrl: dataUrl }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData) return;
+
     setIsSubmitting(true);
     setMessage(null);
 
     try {
-      setTimeout(() => {
-        const updatedUser: User = {
-          ...user,
-          ...formData,
-        };
-        onUserUpdated(updatedUser);
-        setMessage({
-          text: "Your profile information has been successfully updated.",
-          type: "success",
-        });
-        setIsSubmitting(false);
-      }, 500);
-    } catch (error) {
+      const res = await axios.put(
+        `http://127.0.0.1:8000/api/users/update/${userId}/`,
+        formData
+      );
+      onUserUpdated(res.data);
       setMessage({
-        text: "Failed to update your profile. Please try again.",
+        text: "Profile updated successfully!",
+        type: "success",
+      });
+    } catch (err) {
+      setMessage({
+        text: "Failed to update your profile.",
         type: "error",
       });
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!formData) return <p className="text-white">Loading...</p>;
 
   return (
     <div className="bg-[#666699] rounded-lg shadow-md p-6 w-full text-white">
       <div className="mb-6">
         <h2 className="text-xl font-bold mb-2">Profile Information</h2>
-        <p className="text-sm text-gray-200">
-          Update your personal information
-        </p>
+        <p className="text-sm text-gray-200">Update your personal information</p>
       </div>
 
       {message && (
-        <div
-          className={`p-4 mb-6 rounded ${
-            message.type === "success"
-              ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-              : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
-          }`}
-        >
+        <div className={`p-4 mb-6 rounded ${message.type === "success" ? "bg-green-800 text-green-100" : "bg-red-800 text-red-100"}`}>
           {message.text}
         </div>
       )}
@@ -99,63 +93,46 @@ export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
             size="xl"
             onAvatarChange={handleAvatarChange}
           />
-          <p className="text-sm text-gray-200 mt-2">
-            Click the image to change your avatar
-          </p>
+          <p className="text-sm text-gray-200 mt-2">Click to change avatar</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
-            <label
-              htmlFor="fullName"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Full Name
-            </label>
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-200">Full Name</label>
             <input
               id="fullName"
               name="fullName"
-              value={formData.fullName}
+              value={formData.fullName || ""}
               onChange={handleInputChange}
-              placeholder="Enter your full name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] dark:bg-gray-700 dark:text-white"
+              placeholder="Your full name"
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
               style={{ backgroundColor: "#666699" }}
             />
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Email
-            </label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-200">Email</label>
             <input
               id="email"
               name="email"
               type="email"
-              value={formData.email}
+              value={formData.email || ""}
               onChange={handleInputChange}
               placeholder="email@example.com"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
               style={{ backgroundColor: "#666699" }}
             />
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Phone Number
-            </label>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-200">Phone Number</label>
             <input
               id="phone"
               name="phone"
-              value={formData.phone}
+              value={formData.phone || ""}
               onChange={handleInputChange}
-              placeholder="Enter your phone number"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] dark:bg-gray-700 dark:text-white"
+              placeholder="Phone number"
+              className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
               style={{ backgroundColor: "#666699" }}
             />
           </div>
@@ -164,9 +141,9 @@ export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#444466] hover:bg-[#555577] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8888aa] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#444466] hover:bg-[#555577] text-white font-medium py-2 px-4 rounded-md"
         >
-          {isSubmitting ? "Updating..." : "Updates Information"}
+          {isSubmitting ? "Updating..." : "Update Information"}
         </button>
       </form>
     </div>
