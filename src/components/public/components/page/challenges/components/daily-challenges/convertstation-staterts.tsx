@@ -52,13 +52,13 @@ function ConvertstationStaterts() {
             </div>
 
             <button
-              onClick={() => router("/challenges/conversation-starters")}
-              type="button"
-              className="text-[#f1eefd] flex items-center justify-center gap-2 font-[600] cursor-pointer w-full mt-2 bg-[#8861ea] hover:bg-[#8861ea] focus:ring-4 focus:ring-[#8861ea]  rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
-            >
-              <FireIcon className="w-4 h-4 text-white" />
-              Start Challenge
-            </button>
+  onClick={() => router("/challenges/conversation-starters-test")}
+  type="button"
+  className="text-[#f1eefd] flex items-center justify-center gap-2 font-[600] cursor-pointer w-full mt-2 bg-[#8861ea] hover:bg-[#8861ea] focus:ring-4 focus:ring-[#8861ea]  rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
+>
+  <FireIcon className="w-4 h-4 text-white" />
+  Start Exercise
+</button>
           </div>
         </div>
       </div>

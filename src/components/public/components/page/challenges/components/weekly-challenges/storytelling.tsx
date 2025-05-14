@@ -1,3 +1,4 @@
+
 import {
   ArrowTrendingUpIcon,
   ClockIcon,
@@ -5,8 +6,36 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 function Storytelling() {
   const router = useNavigate();
+  const [challenge, setChallenge] = useState(null);
+
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/challenges/")
+      .then(res => {
+        const match = res.data.find((c) => c.title.toLowerCase().includes("storytelling"));
+        if (match) setChallenge(match);
+      });
+  }, []);
+
+  const handleStart = () => {
+    if (challenge) {
+      axios.post("http://localhost:8000/api/challenges/attempt/", {
+        challenge: challenge.id,
+        score: Math.floor(Math.random() * 100)
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      }).then(() => {
+        router("/challenges/storytelling");
+      });
+    }
+  };
+
   return (
     <div className="bg-[#231246] border border-[#39246c] rounded-[16px] shadow-sm p-6">
       <h5 className="text-xl font-bold text-white">Storytelling</h5>
@@ -45,7 +74,7 @@ function Storytelling() {
 
           <button
             type="button"
-            onClick={() => router("/challenges/storytelling")}
+            onClick={handleStart}
             className="text-[#f1eefd] flex items-center justify-center gap-2 font-[600] cursor-pointer w-full bg-[#8861ea] hover:bg-[#8861ea] focus:ring-4 focus:ring-[#8861ea]  rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none"
           >
             <FireIcon className="w-4 h-4 text-white" />

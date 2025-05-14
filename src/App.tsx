@@ -19,39 +19,46 @@ import PracticeHistory from "./components/public/components/page/practice/compon
 import PracticeV2 from "./components/public/components/page/practice-v2";
 import CurrentResult from './components/public/components/page/practice/components/current-result';
 import Conversation from "./components/public/components/page/conversations/conversation";
+
+// ✅ Thêm AuthProvider
+import { AuthProvider } from "./context/AuthContext";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <TooltipProvider>
-        <Routes>
-          {/* Path Public */}
-          <Route path="/" element={<Public />}>
-            <Route index element={<HomePage />} />
-            <Route path="home" element={<HomePage />} />
-            <Route path="practice" element={<Practice />} />
-            {/* <Route path="practice" element={<PracticeV2 />} /> */}
-            <Route path="practice/history" element={<PracticeHistory />} />
-            <Route path="conversation" element={<Conversation />} />
-            <Route path="challenges" element={<Challenges />} />
-            <Route path="challenges/:slug" element={<ChallengeDetail />} />
-            <Route path="leader-board" element={<Leaderboard />} />
-            <Route path="about" element={<About />} />
-            <Route path="profile" element={<Profile />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <TooltipProvider>
+          <Routes>
+            {/* Path Public */}
+            <Route path="/" element={<Public />}>
+              <Route index element={<HomePage />} />
+              <Route path="home" element={<HomePage />} />
+              <Route path="practice" element={<Practice />} />
+              {/* <Route path="practice" element={<PracticeV2 />} /> */}
+              <Route path="practice/history" element={<PracticeHistory />} />
+              <Route path="conversation" element={<Conversation />} />
+              <Route path="challenges" element={<Challenges />} />
+              <Route path="challenges/:slug" element={<ChallengeDetail />} />
+              <Route path="leader-board" element={<Leaderboard />} />
+              <Route path="about" element={<About />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
 
-          </Route>
-          <Route path="/sign-in" element={<Account />} />
+            <Route path="/sign-in" element={<Account />} />
 
-          {/* Path admin */}
-          <Route path="/admin" element={<Admin />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster />
-        <Sonner />
-      </TooltipProvider>
-    </BrowserRouter>
+            {/* Admin */}
+            <Route path="/admin" element={<Admin />} />
+
+            {/* 404 fallback */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
+      </BrowserRouter>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
