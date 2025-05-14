@@ -6,7 +6,7 @@ function MeetOurTeam() {
       <div className="text-center">
         <h2 className="text-white text-3xl">Meet Our Team</h2>
         <p className="text-white text-lg mt-4">
-          SpeakAl is built by a diverse team of language experts, Al
+          SpeakPro is built by a diverse team of language experts, Al
           researchers, and education specialists working together to
           revolutionize language learning.
         </p>

@@ -106,7 +106,7 @@ function ChooseAI() {
               </h5>
             </div>
             <p className="mb-3 font-normal text-gray-500 dark:text-gray-400">
-              Practice in over 20 languages with native speaker recordings and
+              Practice English exclusively with native speaker recordings and
               personalized exercises.
             </p>
           </div>
