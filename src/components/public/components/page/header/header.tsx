@@ -15,10 +15,8 @@ const navigation = [
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const location = useLocation();
   const pathname = location.pathname;
-
   const router = useNavigate();
 
   const authen = typeof window !== "undefined" && cookies.get("userInfo");
@@ -37,7 +35,6 @@ function Header() {
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -86,7 +83,13 @@ function Header() {
               <div className="relative" ref={dropdownRef}>
                 <div
                   id="avatarButton"
-                  onClick={toggleDropdown}
+                  onClick={() => {
+                    if (!isOpen) {
+                      setIsOpen(true);
+                    } else {
+                      router("/profile");
+                    }
+                  }}
                   className="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center cursor-pointer font-semibold text-sm overflow-hidden"
                 >
                   {user?.avatar ? (
@@ -159,6 +162,7 @@ function Header() {
               </div>
             )}
           </nav>
+
           <Dialog
             open={mobileMenuOpen}
             onClose={setMobileMenuOpen}
