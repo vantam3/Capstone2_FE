@@ -3,34 +3,28 @@ import React from "react";
 function OurStory() {
   const dataTimeline = [
     {
-      year: "2020",
+      year: "2024",
       title: "Research Beginnings",
       description:
-        "SpeakAl started as a research project at Stanford University, focused on using Al to detect pronunciation errors in language learners.",
+        "SpeakPro began as a student research project at Duy Tan University, where our team explored how AI could detect pronunciation errors in language learners.",
     },
     {
-      year: "2021",
+      year: "2025",
       title: "First Prototype",
       description:
-        "Our team developed the first prototype of the SpeakAl platform, testing it with a small group of language teachers and students.",
+        "After months of development, we built the first prototype of SpeakPro. We tested it with a small group of students and teachers to gather feedback and refine the platform.",
     },
     {
-      year: "2022",
-      title: "Public Launch",
+      year: "2025",
+      title: "Early Testing & Iteration",
       description:
-        "After refining our Al feedback algorithms, we launched the platform to the public, quickly gaining our first 10,000 users.",
+        "We launched the first public version of SpeakPro, quickly gathering feedback from early users. This allowed us to improve our AI algorithms and enhance the platform's usability.",
     },
     {
-      year: "2023",
-      title: "Expanded Features",
+      year: "2025 and Beyond",
+      title: "Growth & Expansion",
       description:
-        "We added daily challenges, community leaderboards, and support for 20+ languages, transforming SpeakAl into a comprehensive language learning ecosystem.",
-    },
-    {
-      year: "2024",
-      title: "Global Growth",
-      description:
-        "Today, SpeakAl serves learners in over 150 countries, continually improving our Al to provide more accurate and helpful speaking feedback.",
+        "As we continue developing SpeakPro, we're focused on adding new features like daily challenges, community leaderboards, and multi-language support. We're excited about the future as we aim to help learners worldwide improve their pronunciation and language skills.",
     },
   ];
 
@@ -39,8 +33,8 @@ function OurStory() {
       <div className="text-center">
         <h3 className="text-white text-4xl font-bold">Our Story</h3>
         <h3 className="text-white text-lg">
-          From a small research project to a global language learning platform,
-          here's how SpeakAl evolved over the years.
+          From a student research project to a promising language learning
+          platform, here's how SpeakPro has evolved so far.
         </h3>
       </div>
       <div className="flex max-w-4xl items-center mx-auto justify-center">

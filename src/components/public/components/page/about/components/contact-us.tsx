@@ -61,11 +61,11 @@ function ContactUs() {
           <div className="flex items-center gap-2">
             <CheckCircleIcon className="w-6 h-6 text-[#6848b6]" />
             <p className="text-lg text-white">
-              What languages does SpeakAl support?
+              What languages does SpeakPro support?
             </p>
           </div>
           <p className="text-sm text-gray-400 mt-2">
-            We currently support 20+ languages including English,
+            We currently support English only.
           </p>
         </div>
         <div className="w-full mt-4 mx-auto bg-[#010005] border border-[#180c34] rounded-[16px] shadow-sm p-6">
@@ -98,11 +98,11 @@ function ContactUs() {
           <div className="flex items-center gap-2">
             <CheckCircleIcon className="w-6 h-6 text-[#6848b6]" />
             <p className="text-lg text-white">
-              Is SpeakAl suitable for complete beginners?
+              Is SpeakPro suitable for complete beginners?
             </p>
           </div>
           <p className="text-sm text-gray-400 mt-2">
-            Absolutely! SpeakAl adapts to your skill level, providing
+            Absolutely! SpeakPro adapts to your skill level, providing
             appropriate challenges and feedback whether you're just starting or
             at an advanced level.
           </p>
