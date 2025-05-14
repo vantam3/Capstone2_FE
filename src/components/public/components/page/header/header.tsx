@@ -22,6 +22,7 @@ function Header() {
   const router = useNavigate();
 
   const authen = typeof window !== "undefined" && cookies.get("userInfo");
+  const user = authen ? JSON.parse(authen) : null;
 
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -80,26 +81,36 @@ function Header() {
                 <Bars3Icon aria-hidden="true" className="size-6" />
               </button>
             </div>
+
             {authen ? (
-              <div className="relative " ref={dropdownRef}>
-                {/* Avatar */}
-                <div>
-                  <img
-                    id="avatarButton"
-                    className="w-10 h-10 rounded-full cursor-pointer"
-                    src="https://www.svgrepo.com/show/452030/avatar-default.svg"
-                    alt="User dropdown"
-                    onClick={toggleDropdown}
-                  />
+              <div className="relative" ref={dropdownRef}>
+                <div
+                  id="avatarButton"
+                  onClick={toggleDropdown}
+                  className="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center cursor-pointer font-semibold text-sm overflow-hidden"
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt="Avatar"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    (
+                      user?.name
+                        ?.split(" ")
+                        .map((n) => n[0])
+                        .join("") || "U"
+                    ).toUpperCase()
+                  )}
                 </div>
 
-                {/* Dropdown menu */}
                 {isOpen && (
                   <div className="absolute z-10 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600">
                     <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                      <div>Bonnie Green</div>
+                      <div>{user?.name || "Unknown"}</div>
                       <div className="font-medium truncate">
-                        name@flowbite.com
+                        {user?.email || "email@example.com"}
                       </div>
                     </div>
                     <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
