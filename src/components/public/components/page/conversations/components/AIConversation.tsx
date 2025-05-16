@@ -24,6 +24,7 @@ const AIConversation: React.FC = () => {
   const sharedAudioRef = useRef<HTMLAudioElement | null>(null);
   const [currentAudioSrc, setCurrentAudioSrc] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -59,8 +60,10 @@ const AIConversation: React.FC = () => {
       const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
       setRecordedBlob(audioBlob);
       setUserAudioUrl(URL.createObjectURL(audioBlob));
+      setIsRecording(false);
     };
 
+    setIsRecording(true);
     mediaRecorder.start();
   };
 
@@ -98,7 +101,7 @@ const AIConversation: React.FC = () => {
           audioUrl: data.ai_audio_url || "",
         },
       ]);
-      
+
       if (data.ai_audio_url) {
         setCurrentAudioSrc(data.ai_audio_url);
         setIsPlaying(true);
@@ -108,7 +111,7 @@ const AIConversation: React.FC = () => {
           );
         }, 100);
       }
-      
+
     } catch (error) {
       console.error("Error sending message to AI:", error);
       alert("Something went wrong.");
@@ -138,8 +141,8 @@ const AIConversation: React.FC = () => {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                <p className="whitespace-pre-line">{msg.text}</p>
-                {msg.sender === "ai" && msg.audioUrl && (
+                  <p className="whitespace-pre-line">{msg.text}</p>
+                  {msg.sender === "ai" && msg.audioUrl && (
                     <button
                       onClick={() => {
                         if (msg.audioUrl) {
@@ -183,6 +186,12 @@ const AIConversation: React.FC = () => {
             >
               Stop AI Voice
             </Button>
+          </div>
+        )}
+
+        {isRecording && (
+          <div className="text-center text-yellow-300 font-semibold mt-4 animate-pulse">
+            🔴 Recording in progress...
           </div>
         )}
 

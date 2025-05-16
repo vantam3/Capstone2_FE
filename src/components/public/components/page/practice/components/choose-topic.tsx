@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios"; // Đảm bảo bạn đã cài axios (npm install axios)
+import axios from "axios";
 
 function ChooseTopic({
   setActiveTab,
@@ -10,26 +10,32 @@ function ChooseTopic({
 }) {
   const [levels, setLevels] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [textOptions, setTextOptions] = useState([]);
+  const [selectedTextId, setSelectedTextId] = useState(null);
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/levels/") // API trả về danh sách các level
-      .then((response) => {
-        setLevels(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching levels:", error);
-      });
+      .get("http://127.0.0.1:8000/levels/")
+      .then((response) => setLevels(response.data))
+      .catch((error) => console.error("Error fetching levels:", error));
 
     axios
-      .get("http://127.0.0.1:8000/genres/") // API trả về danh sách các topic
-      .then((response) => {
-        setTopics(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching topics:", error);
-      });
+      .get("http://127.0.0.1:8000/genres/")
+      .then((response) => setTopics(response.data))
+      .catch((error) => console.error("Error fetching topics:", error));
   }, []);
+
+  useEffect(() => {
+    if (selectedLevel && selectedTopic) {
+      axios
+        .get(`http://127.0.0.1:8000/speaking-texts/filter/?genre=${selectedTopic}&level=${selectedLevel}`)
+        .then((res) => {
+          setTextOptions(res.data || []);
+          setSelectedTextId(null);
+        })
+        .catch((err) => console.error("Failed to fetch speaking texts", err));
+    }
+  }, [selectedLevel, selectedTopic]);
 
   return (
     <div>
@@ -39,9 +45,7 @@ function ChooseTopic({
           {levels.map((level) => (
             <div
               key={level.id}
-              onClick={() => {
-                setSelectedLevel(level.id); // Lưu ID của level
-              }}
+              onClick={() => setSelectedLevel(level.id)}
               className={`w-full text-center cursor-pointer p-4 ${
                 selectedLevel === level.id
                   ? `bg-green-600 border-white ring-green-600 ring-4`
@@ -72,9 +76,7 @@ function ChooseTopic({
           {topics.map((item) => (
             <div
               key={item.id}
-              onClick={() => {
-                setSelectedTopic(item.id); // Lưu ID của topic
-              }}
+              onClick={() => setSelectedTopic(item.id)}
               className={`w-full cursor-pointer p-6 ${
                 item.id === selectedTopic
                   ? "bg-[#230e58] border-[#5f3dc4]"
@@ -96,16 +98,37 @@ function ChooseTopic({
         </div>
       </div>
 
+      {textOptions.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-white mb-2">Choose a sample text:</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {textOptions.map((text) => (
+              <div
+                key={text.id}
+                onClick={() => setSelectedTextId(text.id)}
+                className={`cursor-pointer p-4 rounded-lg border ${
+                  selectedTextId === text.id
+                    ? "bg-green-600 border-white ring-2 ring-green-400"
+                    : "bg-[#1a0940] border-[#2d1674]"
+                }`}
+              >
+                <h4 className="text-white font-bold">{text.title}</h4>
+                <p className="text-gray-300 mt-2 whitespace-pre-line line-clamp-3">{text.content}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <p
         onClick={() => {
-          if (selectedTopic) {
-            setActiveTab("tab_2"); // Chuyển sang tab tiếp theo
+          if (selectedTextId) {
+            localStorage.setItem("selectedTextId", selectedTextId);
+            setActiveTab("tab_2");
           }
         }}
         className={`text-center mt-8 text-lg font-bold ${
-          selectedTopic === ""
-            ? "text-gray-400 cursor-not-allowed"
-            : "text-white cursor-pointer"
+          selectedTextId ? "text-white cursor-pointer" : "text-gray-400 cursor-not-allowed"
         }`}
       >
         Start the lesson

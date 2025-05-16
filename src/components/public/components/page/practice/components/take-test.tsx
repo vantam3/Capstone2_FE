@@ -16,62 +16,48 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
   const [audioBlob, setAudioBlob] = useState(null);
   const [isRecordingIndicatorVisible, setIsRecordingIndicatorVisible] = useState(false);
   const [audioPlayer, setAudioPlayer] = useState(null);
-const GENRE_MAP = {
-  1: "Introductions",
-  2: "Job Interview",
-  3: "Travel",
-  4: "Friendship",
-  5: "Daily Life",
-  9: "Miscellaneous",
-  10: "Updated Topic"
-};
 
-const LEVEL_MAP = {
-  1: "Beginner",
-  2: "Intermediate",
-  3: "Advanced"
-};
+  const GENRE_MAP = {
+    1: "Introductions",
+    2: "Job Interview",
+    3: "Travel",
+    4: "Friendship",
+    5: "Daily Life",
+    9: "Miscellaneous",
+    10: "Updated Topic"
+  };
+
+  const LEVEL_MAP = {
+    1: "Beginner",
+    2: "Intermediate",
+    3: "Advanced"
+  };
 
   useEffect(() => {
-    if (selectedLevel && selectedTopic) {
-      axios
-        .get(`http://127.0.0.1:8000/speaking-texts/filter/?genre=${selectedTopic}&level=${selectedLevel}`)
-        .then((response) => {
-          const content = response.data[0]?.content;
-          const speakingTextId = response.data[0]?.id;
+    const selectedTextId = localStorage.getItem("selectedTextId");
+    if (!selectedTextId) return;
 
-          if (!content) {
-            setError("No content found");
-            return;
-          }
+    axios.get(`http://127.0.0.1:8000/speaking-texts/${selectedTextId}/`)
+      .then((res) => {
+        const data = res.data;
+        setQuestion({
+          id: data.id,
+          title: data.title,
+          content: data.content,
+        });
 
-          setQuestion({
-            id: speakingTextId,
-            title: response.data[0].title,
-            content: content,
+        axios.get(`http://127.0.0.1:8000/audios/${data.id}/`)
+          .then((audioResponse) => {
+            const audio = audioResponse.data.audio_url;
+            if (audio) setAudioUrl(audio);
           });
 
-          if (speakingTextId) {
-            axios
-              .get(`http://127.0.0.1:8000/audios/${speakingTextId}/`)
-              .then((audioResponse) => {
-                const audio = audioResponse.data.audio_url;
-                if (audio) {
-                  setAudioUrl(audio);
-                }
-              })
-              .catch(() => {
-                setError("An error occurred while fetching audio.");
-              });
-          }
-
-          setProgress(100);
-        })
-        .catch(() => {
-          setError("An error occurred while fetching the questions.");
-        });
-    }
-  }, [selectedLevel, selectedTopic]);
+        setProgress(100);
+      })
+      .catch(() => {
+        setError("Failed to load question.");
+      });
+  }, []);
 
   useEffect(() => {
     if (navigator.mediaDevices) {
@@ -79,9 +65,7 @@ const LEVEL_MAP = {
         .getUserMedia({ audio: true })
         .then((stream) => {
           const newRecorder = new MediaRecorder(stream);
-          newRecorder.ondataavailable = (e) => {
-            setAudioBlob(e.data);
-          };
+          newRecorder.ondataavailable = (e) => setAudioBlob(e.data);
           setRecorder(newRecorder);
         })
         .catch(() => {
@@ -122,10 +106,7 @@ const LEVEL_MAP = {
       return;
     }
 
-    const webmFile = new File([audioBlob], "user_audio.webm", {
-      type: "audio/webm",
-    });
-
+    const webmFile = new File([audioBlob], "user_audio.webm", { type: "audio/webm" });
     const formData = new FormData();
     formData.append("audio_file", webmFile);
 
@@ -147,14 +128,11 @@ const LEVEL_MAP = {
           topicName: selectedTopic,
           levelName: selectedLevel,
         });
-
         setActiveTab("tab_3");
       })
       .catch((err) => {
         console.error("Upload failed:", err);
-        const message =
-          err.response?.data?.error ||
-          "An error occurred while submitting the audio.";
+        const message = err.response?.data?.error || "An error occurred while submitting the audio.";
         setError(message);
       });
   };
@@ -163,41 +141,27 @@ const LEVEL_MAP = {
     <>
       <div className="mt-8">
         <h3>Practice Pronunciation</h3>
-        <h3 className="text-gray-400 mt-2">
-          Topic: {GENRE_MAP[selectedTopic] || selectedTopic}
-        </h3>
-        <h3 className="text-gray-400 mt-2">
-          Level: {LEVEL_MAP[selectedLevel] || selectedLevel}
-        </h3>
+        <h3 className="text-gray-400 mt-2">Topic: {GENRE_MAP[selectedTopic] || selectedTopic}</h3>
+        <h3 className="text-gray-400 mt-2">Level: {LEVEL_MAP[selectedLevel] || selectedLevel}</h3>
         <div className="flex items-center mt-2">
           <h3 className="text-gray-400">Progress</h3>
           <h3 className="text-gray-400 ml-auto">1/1 question</h3>
         </div>
         <div className="w-full bg-[#4b2f8d] rounded-full h-2">
-          <div
-            className="bg-[#8861ea] h-2 rounded-full"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="bg-[#8861ea] h-2 rounded-full" style={{ width: `${progress}%` }} />
         </div>
 
         {error ? (
-          <div className="text-red-500 mt-4">
-            <p>{error}</p>
-          </div>
+          <div className="text-red-500 mt-4"><p>{error}</p></div>
         ) : (
           <div className="w-full mt-8 p-4 bg-[#1a0940] border border-[#2d1674] rounded-[10px] shadow-sm sm:p-6">
             <h5 className="mb-2 text-sm text-gray-400">Title:</h5>
-            <p className="mb-5 text-white text-lg font-semibold">
-              {question ? question.title : "Loading..."}
-            </p>
+            <p className="mb-5 text-white text-lg font-semibold">{question ? question.title : "Loading..."}</p>
             <div className="w-full mt-8 p-4 bg-[#230e58] border border-[#2d1674] rounded-[10px] shadow-sm sm:p-6">
-              <h5 className="mb-2 text-lg text-white font-semibold">
-                Practice pronunciation with the following sentence:
-              </h5>
+              <h5 className="mb-2 text-lg text-white font-semibold">Practice pronunciation with the following sentence:</h5>
               <div className="mb-5 text-white text-lg font-semibold bg-[#2d1674] border border-[#2d1674] rounded-[10px] sm:p-2 whitespace-pre-line">
                 {question ? question.content : "Loading..."}
               </div>
-
 
               <button
                 onClick={handlePlayAudio}
@@ -213,15 +177,9 @@ const LEVEL_MAP = {
                 </audio>
               )}
 
-              <p className="text-gray-300 text-sm mt-4">
-                1. Tap "Start Recording" to record your voice
-              </p>
-              <p className="text-gray-300 text-sm">
-                2. Read the above sentence loudly and clearly.
-              </p>
-              <p className="text-gray-300 text-sm">
-                3. Press "Stop Recording" when you're done reading
-              </p>
+              <p className="text-gray-300 text-sm mt-4">1. Tap "Start Recording" to record your voice</p>
+              <p className="text-gray-300 text-sm">2. Read the above sentence loudly and clearly.</p>
+              <p className="text-gray-300 text-sm">3. Press "Stop Recording" when you're done reading</p>
 
               {isRecordingIndicatorVisible && (
                 <div className="w-12 h-12 border-4 border-t-4 border-gray-300 border-t-[#ff0000] rounded-full animate-spin mx-auto mb-4" />
@@ -259,4 +217,5 @@ const LEVEL_MAP = {
     </>
   );
 }
+
 export default TakeTest;
