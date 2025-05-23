@@ -1,9 +1,12 @@
+// src/App.tsx (hoặc file routing chính của bạn)
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+
+// Các trang và components khác
+import Index from "./pages/Index"; // Giả sử bạn có trang này
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import About from "./components/public/components/page/about";
@@ -14,10 +17,13 @@ import Public from "./components/public";
 import HomePage from "./components/public/components/page/home/home";
 import ChallengeDetail from "./components/public/components/page/challenges/detail";
 import Profile from "./components/public/components/page/account/profile";
-import Account from "./components/public/components/page/account";
+import Account from "./components/public/components/page/account"; // Trang đăng nhập / đăng ký
 import PracticeHistory from "./components/public/components/page/practice/components/history";
-import PracticeV2 from "./components/public/components/page/practice-v2";
+// import PracticeV2 from "./components/public/components/page/practice-v2"; // Commented out in original
 import Conversation from "./components/public/components/page/conversations/conversation";
+
+import AdminProtectedRoute from "./components/AdminProtectedRoute"; 
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -30,7 +36,6 @@ const App = () => (
             <Route index element={<HomePage />} />
             <Route path="home" element={<HomePage />} />
             <Route path="practice" element={<Practice />} />
-            {/* <Route path="practice" element={<PracticeV2 />} /> */}
             <Route path="practice/history" element={<PracticeHistory />} />
             <Route path="conversation" element={<Conversation />} />
             <Route path="challenges" element={<Challenges />} />
@@ -41,8 +46,16 @@ const App = () => (
           </Route>
           <Route path="/sign-in" element={<Account />} />
 
-          {/* Path admin */}
-          <Route path="/admin" element={<Admin />} />
+          {/* Path admin được bảo vệ */}
+          <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute>
+                <Admin />
+              </AdminProtectedRoute>
+            }
+          />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

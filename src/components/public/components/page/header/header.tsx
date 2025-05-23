@@ -172,16 +172,6 @@ function Header() {
                           Profile
                         </Link>
                       </li>
-                      <li>
-                        <a // Or Link if it's an internal route
-                          href="#" // Replace with actual settings path
-                          onClick={() => setIsOpen(false)}
-                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                          role="menuitem"
-                        >
-                          Settings
-                        </a>
-                      </li>
                     </ul>
                     <div className="py-1" role="none">
                       <button
