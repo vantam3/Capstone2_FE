@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
-import Register from "./register";
-import SignIn from "./sign-in";
+import Register from "./register/Register";
+import SignIn from "./sign-in/SignIn";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 function Account() {

@@ -1,32 +1,42 @@
-import { useState } from "react";
-import { SimpleAvatarUpload } from "@/components/ui/avatar-upload";
+// src/components/UserInfo.tsx
+import { useState, useEffect, FormEvent } from "react";
+import axios from "axios";
 
-interface User {
+// Interface nhất quán cho dữ liệu người dùng
+export interface UserProfileData {
   id: number;
   username: string;
-  fullName?: string;
   email?: string;
-  phone?: string;
-  avatarUrl?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
-interface SimpleUserInfoProps {
-  user: User;
-  onUserUpdated: (updatedUser: User) => void;
+interface UserInfoProps {
+  user: UserProfileData;
+  onUserUpdated: (updatedUser: UserProfileData) => void;
 }
 
-export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
+export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
   const [formData, setFormData] = useState({
-    fullName: user.fullName || "",
-    email: user.email || "",
-    phone: user.phone || "",
-    avatarUrl: user.avatarUrl || "",
+    first_name: "",
+    last_name: "",
+    email: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        email: user.email || "",
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,38 +46,62 @@ export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
     }));
   };
 
-  const handleAvatarChange = (dataUrl: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      avatarUrl: dataUrl,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage(null);
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage({ text: "Authentication token not found. Please log in.", type: "error" });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const payload = {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      // We don't send 'username' or 'id' in the payload for an update to this specific endpoint
+    };
+
     try {
-      setTimeout(() => {
-        const updatedUser: User = {
-          ...user,
-          ...formData,
-        };
-        onUserUpdated(updatedUser);
-        setMessage({
-          text: "Your profile information has been successfully updated.",
-          type: "success",
-        });
-        setIsSubmitting(false);
-      }, 500);
-    } catch (error) {
+      // 👇 **MODIFIED LINE: Update API endpoint**
+      const response = await axios.patch(
+        `http://localhost:8000/api/profile/update/`, // Use the new endpoint
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updatedUserFromAPI: UserProfileData = response.data;
+      localStorage.setItem("user", JSON.stringify(updatedUserFromAPI));
+      onUserUpdated(updatedUserFromAPI);
+
       setMessage({
-        text: "Failed to update your profile. Please try again.",
+        text: "Your profile information has been successfully updated.",
+        type: "success",
+      });
+    } catch (error: any) {
+      const errorMsg =
+        error.response?.data?.detail ||
+        (error.response?.data && typeof error.response.data === "object"
+          ? Object.values(error.response.data).flat().join(" ")
+          : "Failed to update your profile. Please try again.");
+      setMessage({
+        text: errorMsg,
         type: "error",
       });
+    } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const getUsernameInitial = (username?: string) => {
+    return username ? username[0].toUpperCase() : "U";
   };
 
   return (
@@ -75,16 +109,16 @@ export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
       <div className="mb-6">
         <h2 className="text-xl font-bold mb-2">Profile Information</h2>
         <p className="text-sm text-gray-200">
-          Update your personal information
+          Update your personal information for username: {user.username}
         </p>
       </div>
 
       {message && (
         <div
-          className={`p-4 mb-6 rounded ${
+          className={`p-3 mb-4 rounded-md text-sm ${
             message.type === "success"
-              ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-              : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
+              ? "bg-green-200 text-green-800 dark:bg-green-700 dark:text-green-100"
+              : "bg-red-200 text-red-800 dark:bg-red-700 dark:text-red-100"
           }`}
         >
           {message.text}
@@ -93,80 +127,71 @@ export function SimpleUserInfo({ user, onUserUpdated }: SimpleUserInfoProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex flex-col items-center mb-6">
-          <SimpleAvatarUpload
-            avatarUrl={formData.avatarUrl}
-            name={formData.fullName}
-            size="xl"
-            onAvatarChange={handleAvatarChange}
-          />
-          <p className="text-sm text-gray-200 mt-2">
-            Click the image to change your avatar
-          </p>
+          <div className="w-24 h-24 rounded-full bg-gray-500 text-white flex items-center justify-center text-4xl font-semibold mb-2">
+            {getUsernameInitial(user.username)}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-1">
             <label
-              htmlFor="fullName"
+              htmlFor="first_name"
               className="block text-sm font-medium text-gray-200"
             >
-              Full Name
+              First Name
             </label>
             <input
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              id="first_name"
+              name="first_name"
+              value={formData.first_name}
               onChange={handleInputChange}
-              placeholder="Enter your full name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] dark:bg-gray-700 dark:text-white"
-              style={{ backgroundColor: "#666699" }}
+              placeholder="Enter your first name"
+              className="w-full px-3 py-2 border border-gray-400 dark:border-gray-500 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] bg-[#555588] dark:bg-gray-700 text-white"
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label
-              htmlFor="email"
+              htmlFor="last_name"
               className="block text-sm font-medium text-gray-200"
             >
-              Email
+              Last Name
             </label>
             <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
+              id="last_name"
+              name="last_name"
+              value={formData.last_name}
               onChange={handleInputChange}
-              placeholder="email@example.com"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] dark:bg-gray-700 dark:text-white"
-              style={{ backgroundColor: "#666699" }}
+              placeholder="Enter your last name"
+              className="w-full px-3 py-2 border border-gray-400 dark:border-gray-500 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] bg-[#555588] dark:bg-gray-700 text-white"
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Phone Number
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              placeholder="Enter your phone number"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] dark:bg-gray-700 dark:text-white"
-              style={{ backgroundColor: "#666699" }}
-            />
-          </div>
+        <div className="space-y-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-200"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            placeholder="email@example.com"
+            className="w-full px-3 py-2 border border-gray-400 dark:border-gray-500 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] bg-[#555588] dark:bg-gray-700 text-white"
+          />
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#444466] hover:bg-[#555577] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8888aa] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#444466] hover:bg-[#333355] text-white font-medium py-2.5 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#777799] disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Updating..." : "Updates Information"}
+          {isSubmitting ? "Updating..." : "Update Information"}
         </button>
       </form>
     </div>
