@@ -1,14 +1,14 @@
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
-import Register from "./register";
-import SignIn from "./sign-in";
+import Register from "./register/Register";
+import SignIn from "./sign-in/SignIn";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 function Account() {
   const router = useNavigate();
   const tabs = [
     {
-      name: "SignIn",
+      name: "Sign In",
       code: "sign-in",
     },
     {
@@ -107,7 +107,7 @@ function Account() {
             <figure className="max-w-screen-md">
               <blockquote>
                 <p className="text-xl italic text-white">
-                  "SpeakAl helped me improve my Korean pronunciation in just a
+                  "SpeakAl helped me improve my English pronunciation in just a
                   few weeks. The feedback is so detailed and helpful!"
                 </p>
               </blockquote>
@@ -119,10 +119,10 @@ function Account() {
                 />
                 <div className="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-700">
                   <cite className="pe-3 font-medium text-white">
-                    Bonnie Green
+                    Trần Văn Tâm
                   </cite>
                   <cite className="ps-3 text-sm text-gray-400">
-                    CTO at Flowbite
+                    Leader at C2SE.40
                   </cite>
                 </div>
               </figcaption>

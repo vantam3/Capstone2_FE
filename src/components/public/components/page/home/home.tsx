@@ -55,7 +55,7 @@ function HomePage() {
               </div>
               <div className="flex items-center gap-2 justify-center">
                 <LanguageIcon className="w-5 h-5 text-[#8861ea]" />
-                <p className="text-white">20+ Languages</p>
+                <p className="text-white">Languages</p>
               </div>
               <div className="flex items-center gap-2 justify-center">
                 <ChartBarIcon className="w-5 h-5 text-[#8861ea]" />

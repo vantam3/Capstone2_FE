@@ -1,30 +1,14 @@
-import { useState } from "react";
+// src/pages/ProfilePage.tsx
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SimpleSidebar } from "@/components/public/components/page/account/profile/components/side-bar";
-import { SimpleUserInfo } from "@/components/public/components/page/account/profile/components/user-info";
-import { SimpleHistory } from "@/components/public/components/page/account/profile/components/histories";
+import { SimpleSidebar } from "@/components/public/components/page/account/profile/components/side-bar"; // Giả sử đường dẫn này đúng
+import { UserInfo, UserProfileData } from "@/components/public/components/page/account/profile/components/user-info"; // Import UserInfo và UserProfileData
+import { SimpleHistory } from "@/components/public/components/page/account/profile/components/histories"; // Giả sử đường dẫn này đúng
 
-// ✅ Interface User được định nghĩa tại chỗ
-interface User {
-  id: number;
-  username: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  avatarUrl: string;
-}
-
-export default function SimpleProfilePage() {
+export default function ProfilePage() {
   const [activePage, setActivePage] = useState("profile");
-
-  const [user, setUser] = useState<User>({
-    id: 1,
-    username: "nguyen.minh",
-    fullName: "Nguyễn Thị Minh",
-    email: "nguyenthiminh@gmail.com",
-    phone: "0987654321",
-    avatarUrl: "https://i.pravatar.cc/300?img=32",
-  });
+  const [user, setUser] = useState<UserProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [history] = useState([
     {
@@ -41,33 +25,85 @@ export default function SimpleProfilePage() {
       score: 92,
       duration: "7 phút",
     },
-    {
-      id: 3,
-      date: "2025-04-29",
-      title: "Luyện phát âm - Bài 3",
-      score: 78,
-      duration: "4 phút",
-    },
+    // Thêm các mục lịch sử khác nếu cần
   ]);
 
-  const navigate = useNavigate(); // Create navigate function
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUserData = localStorage.getItem("user");
+    if (storedUserData) {
+      try {
+        const parsedUser: UserProfileData = JSON.parse(storedUserData);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Lỗi khi parse dữ liệu người dùng từ localStorage:", error);
+        setUser(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
+    } else {
+      setUser(null);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handleUserUpdated = (updatedUser: UserProfileData) => {
+    setUser(updatedUser);
+    // localStorage đã được cập nhật trong UserInfo, nhưng có thể làm lại ở đây để chắc chắn
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
 
   const handleLogout = () => {
-    // Xóa thông tin người dùng khỏi localStorage (nếu có)
-    localStorage.removeItem("user"); // Tùy thuộc vào cách bạn lưu trữ thông tin người dùng
-
-    // Điều hướng về trang home sau khi đăng xuất
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
     navigate("/home");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#170a38] text-white flex justify-center items-center">
+        <p className="text-xl">Loading profile data...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#170a38] text-white flex flex-col justify-center items-center p-4 text-center">
+        <p className="text-xl mb-4">
+          User information not available. Please sign in to view your profile.
+        </p>
+        <button
+          onClick={() => navigate("/sign-in")}
+          className="bg-[#9061F9] hover:bg-[#7a52cc] text-white font-semibold py-2 px-6 rounded-lg"
+        >
+          Go to Sign In
+        </button>
+      </div>
+    );
+  }
+
+  // Dữ liệu cho SimpleSidebar, giả sử nó cần fullName và avatarUrl (dù rỗng)
+  const userForSidebar = {
+    id: user.id,
+    username: user.username,
+    fullName: (user.first_name && user.last_name)
+                ? `${user.first_name} ${user.last_name}`
+                : user.username,
+    email: user.email || "",
+    // phone: "", // Đã bỏ số điện thoại
+    avatarUrl: "", // Backend không cung cấp, truyền chuỗi rỗng
   };
 
   return (
     <div className="min-h-screen bg-[#170a38] text-white pt-4 pb-8 px-4">
-      {/* Nút quay lại nằm trước Account Information */}
-      <div className="mt-[4rem] sm:mt-[10rem] max-w-screen-lg mx-auto sm:p-2 p-6">
+      <div className="mt-[4rem] sm:mt-[6rem] md:mt-[8rem] max-w-screen-lg mx-auto sm:p-2 p-6"> {/* Adjusted top margin */}
         <div className="flex items-center gap-4 mb-6">
           <button
-            onClick={() => navigate("/home")} // Use navigate to go to the homepage
-            className="text-white flex items-center gap-2 text-xs"
+            onClick={() => navigate(-1)} // Quay lại trang trước đó
+            className="text-white flex items-center gap-2 text-xs hover:text-gray-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -84,32 +120,29 @@ export default function SimpleProfilePage() {
             <span>Back</span>
           </button>
         </div>
-        <div className="text-white text-2xl">Account Information</div>
-        <div className="text-white text-sm">
-          Manage your personal account and account settings
+        <div className="text-white text-2xl font-semibold">Account Information</div>
+        <div className="text-gray-300 text-sm">
+          Manage your personal account and account settings.
         </div>
       </div>
 
-      {/* Grid layout: Sidebar và Nội dung */}
-      <div className="w-full max-w-screen-lg mt-0 mx-auto grid grid-cols-1 sm:grid-cols-[25%_75%] gap-2 sm:gap-4">
-        <div className="md:w-64 flex-shrink-0">
+      <div className="w-full max-w-screen-lg mt-4 mx-auto grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6 sm:gap-8">
+        <div className="flex-shrink-0">
           <SimpleSidebar
-            user={user}
+            user={userForSidebar}
             activePage={activePage}
             onPageChange={setActivePage}
-            onLogout={handleLogout} // Pass handleLogout here
+            onLogout={handleLogout}
           />
         </div>
 
-        {/* Nội dung trang con */}
         <div className="flex-1">
-          {activePage === "profile" && (
-            <SimpleUserInfo
+          {activePage === "profile" && user && ( // Đảm bảo user không null trước khi render UserInfo
+            <UserInfo
               user={user}
-              onUserUpdated={(updatedUser: User) => setUser(updatedUser)}
+              onUserUpdated={handleUserUpdated}
             />
           )}
-
           {activePage === "history" && <SimpleHistory items={history} />}
         </div>
       </div>

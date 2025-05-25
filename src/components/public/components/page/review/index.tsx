@@ -61,7 +61,7 @@ function Review() {
               </div>
               <blockquote>
                 <p className="text-2xl font-semibold text-white">
-                  "SpeakAl helped me improve my Korean pronunciation in just a
+                  "SpeakAl helped me improve my English pronunciation in just a
                   few weeks. The feedback is so detailed and helpful!"
                 </p>
               </blockquote>
@@ -72,11 +72,9 @@ function Review() {
                   alt="profile picture"
                 />
                 <div className="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-300 dark:divide-gray-700">
-                  <cite className="pe-3 font-medium text-white">
-                    Bonnie Green
-                  </cite>
+                  <cite className="pe-3 font-medium text-white">Nam Khánh</cite>
                   <cite className="ps-3 text-sm text-gray-500 dark:text-gray-400">
-                    CTO at Flowbite
+                    Member at C2SE.40
                   </cite>
                 </div>
               </figcaption>
@@ -145,11 +143,9 @@ function Review() {
                   alt="profile picture"
                 />
                 <div className="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-300 dark:divide-gray-700">
-                  <cite className="pe-3 font-medium text-white">
-                    Bonnie Green
-                  </cite>
+                  <cite className="pe-3 font-medium text-white">Duy Nhựt</cite>
                   <cite className="ps-3 text-sm text-gray-500 dark:text-gray-400">
-                    CTO at Flowbite
+                    Member at C2SE.40
                   </cite>
                 </div>
               </figcaption>
@@ -217,11 +213,9 @@ function Review() {
                   alt="profile picture"
                 />
                 <div className="flex items-center divide-x-2 rtl:divide-x-reverse divide-gray-300 dark:divide-gray-700">
-                  <cite className="pe-3 font-medium text-white">
-                    Bonnie Green
-                  </cite>
+                  <cite className="pe-3 font-medium text-white">Hạ Long</cite>
                   <cite className="ps-3 text-sm text-gray-500 dark:text-gray-400">
-                    CTO at Flowbite
+                    Member at C2SE.40
                   </cite>
                 </div>
               </figcaption>
