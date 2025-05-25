@@ -161,11 +161,16 @@ const AIConversation: React.FC<AIConversationProps> = ({ onWordStatesUpdate, onR
         console.log("➡️ Moving to next step:", currentStep + 1);
         setCurrentStep(currentStep + 1);
         const nextStep = steps[currentStep + 1];
-        if (nextStep.speaker === "AI" && nextStep.audioUrl) {
-          console.log("🔊 Playing AI audio for next step.");
-          sharedAudioRef.current!.src = nextStep.audioUrl;
-          sharedAudioRef.current!.play();
-          setIsPlaying(true);
+
+        if (nextStep.speaker === "AI") {
+          if (nextStep.audioUrl) {
+            console.log("🔊 Playing AI audio for next step.");
+            sharedAudioRef.current!.src = nextStep.audioUrl;
+            sharedAudioRef.current!.play();
+            setIsPlaying(true);
+          } else {
+            console.log("⚠️ No audio URL for AI step", currentStep + 1);
+          }
         }
       }
     } catch (error) {
@@ -261,10 +266,14 @@ const AIConversation: React.FC<AIConversationProps> = ({ onWordStatesUpdate, onR
           if (next < steps.length) {
             setCurrentStep(next);
             const nextStep = steps[next];
-            if (nextStep.speaker === "AI" && nextStep.audioUrl) {
-              sharedAudioRef.current!.src = nextStep.audioUrl;
-              sharedAudioRef.current!.play();
-              setIsPlaying(true);
+            if (nextStep.speaker === "AI") {
+              if (nextStep.audioUrl) {
+                sharedAudioRef.current!.src = nextStep.audioUrl;
+                sharedAudioRef.current!.play();
+                setIsPlaying(true);
+              } else {
+                console.log("⚠️ No audio URL for AI step (audio end)", next);
+              }
             }
           }
         }}
