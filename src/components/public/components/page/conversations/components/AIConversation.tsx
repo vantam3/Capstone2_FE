@@ -1,85 +1,75 @@
-// components/AIConversation.tsx
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+import { useToast } from "@/hooks/use-toast";
 
-interface Message {
+interface Step {
   id: string;
   text: string;
-  sender: "user" | "ai";
-  score?: number;
-  errors?: string[];
+  speaker: "AI" | "You";
   audioUrl?: string;
+  wordStates?: { word: string; correct: boolean }[];
 }
 
-const AIConversation: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
-  const [userAudioUrl, setUserAudioUrl] = useState<string | null>(null);
+interface WordState {
+  word: string;
+  correct: boolean;
+}
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+interface AIConversationProps {
+  onWordStatesUpdate?: (words: Step["wordStates"] | null) => void;
+  onRestart?: () => void;
+}
+
+const AIConversation: React.FC<AIConversationProps> = ({ onWordStatesUpdate, onRestart }) => {
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [scoreText, setScoreText] = useState<string | null>(null);
+  const { toast: customToast } = useToast();
 
   const sharedAudioRef = useRef<HTMLAudioElement | null>(null);
-  const [currentAudioSrc, setCurrentAudioSrc] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          id: Date.now().toString(),
-          text: 'Hello! How can I assist you today?',
-          sender: "ai",
-        },
-      ]);
-    }
-  }, [messages.length]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [currentStep]);
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
+    const recorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = recorder;
     audioChunksRef.current = [];
 
-    mediaRecorder.ondataavailable = (event) => {
-      audioChunksRef.current.push(event.data);
+    recorder.ondataavailable = (e) => {
+      audioChunksRef.current.push(e.data);
     };
 
-    mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-      setRecordedBlob(audioBlob);
-      setUserAudioUrl(URL.createObjectURL(audioBlob));
-      setIsRecording(false);
+    recorder.onstop = () => {
+      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      setRecordedBlob(blob);
     };
 
     setIsRecording(true);
-    mediaRecorder.start();
+    recorder.start();
   };
 
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
+    setIsRecording(false);
   };
 
-  const handleSendToBackend = async () => {
-    if (!recordedBlob) {
-      alert("Please record your voice first.");
-      return;
-    }
+  const fetchDialogue = async () => {
+    if (!recordedBlob) return;
+    setIsGenerating(true);
 
-    setIsProcessing(true);
     const formData = new FormData();
-    formData.append("audio_file", new File([recordedBlob], "user_audio.webm"));
+    formData.append("audio_file", new File([recordedBlob], "topic.webm"));
 
     try {
       const res = await fetch("http://127.0.0.1:8000/api/dialogue/", {
@@ -88,154 +78,198 @@ const AIConversation: React.FC = () => {
       });
 
       const data = await res.json();
-      const aiMessageId = Date.now().toString();
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: aiMessageId,
-          text: data.ai_text || "AI feedback",
-          sender: "ai",
-          score: data.score,
-          errors: data.errors,
-          audioUrl: data.ai_audio_url || "",
-        },
-      ]);
+      const steps: Step[] = data.steps.map((s: any, idx: number) => ({
+        id: `step_${idx}`,
+        speaker: s.speaker,
+        text: s.text,
+        audioUrl: s.audio_url || undefined,
+      }));
 
-      if (data.ai_audio_url) {
-        setCurrentAudioSrc(data.ai_audio_url);
+      setSteps(steps);
+      setCurrentStep(0);
+      setRecordedBlob(null);
+      setScoreText(null);
+
+      if (steps[0]?.speaker === "AI" && steps[0].audioUrl) {
+        sharedAudioRef.current!.src = steps[0].audioUrl;
+        sharedAudioRef.current!.play();
         setIsPlaying(true);
-        setTimeout(() => {
-          sharedAudioRef.current?.play().catch((err) =>
-            console.warn("Auto-play error:", err)
-          );
-        }, 100);
       }
-
-    } catch (error) {
-      console.error("Error sending message to AI:", error);
-      alert("Something went wrong.");
+    } catch (err) {
+      toast.error("Failed to generate dialogue. Please try again.");
     } finally {
-      setIsProcessing(false);
+      setIsGenerating(false);
     }
   };
 
-  return (
-    <div className="conversation-container mb-8">
-      <div className="p-6 border-[#2c1950] border bg-[#171422] rounded-[10px]">
-        <div className="flex items-center mb-4">
-          <h2 className="text-xl font-semibold text-[#8465d0]">
-            Conversation with AI
-          </h2>
-        </div>
+  const handleUserSubmit = async () => {
+    if (!recordedBlob || !steps[currentStep]) {
+      console.warn("🚫 Missing recordedBlob or invalid step at handleUserSubmit");
+      return;
+    }
 
-        <div className="bg-[#13111C] rounded-lg mb-4 p-4 h-64 overflow-y-auto custom-scrollbar">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex mb-4 ${msg.sender === "user" ? "justify-end" : ""}`}
-            >
+    const formData = new FormData();
+    formData.append("audio_file", new File([recordedBlob], "reply.webm"));
+    formData.append("expected_text", steps[currentStep].text);
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/submit-reply/", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await res.json();
+      console.log("📨 Response from /submit-reply:", result);
+
+      const updatedSteps = [...steps];
+      updatedSteps[currentStep].wordStates = result.words || [];
+      setSteps(updatedSteps);
+
+      if (onWordStatesUpdate) {
+        onWordStatesUpdate(result.words || []);
+      }
+
+      console.log("🔢 Current step:", currentStep, "Total steps:", steps.length);
+
+      if (currentStep + 1 >= steps.length) {
+        console.log("✅ Dialogue completed. Calculating score...");
+
+        const allWords = updatedSteps
+          .filter((s) => s.speaker === "You" && s.wordStates)
+          .flatMap((s) => s.wordStates || []);
+
+        const total = allWords.length;
+        const correct = allWords.filter((w) => w.correct).length;
+        const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+        setScoreText(`🎯 Your Pronunciation Score: ${score}/100 (${correct}/${total} correct words)`);
+
+        toast.success(`🎉 Dialogue completed! Score: ${score}/100`, {
+          style: {
+            background: "#1a1a2e",
+            color: "#fff",
+            border: "1px solid #4ade80",
+          },
+        });
+
+        customToast({
+          title: "🎉 Dialogue completed!",
+          description: `Score: ${score}/100 (${correct}/${total} correct words)`,
+        });
+      } else {
+        console.log("➡️ Moving to next step:", currentStep + 1);
+        setCurrentStep(currentStep + 1);
+        const nextStep = steps[currentStep + 1];
+        if (nextStep.speaker === "AI" && nextStep.audioUrl) {
+          console.log("🔊 Playing AI audio for next step.");
+          sharedAudioRef.current!.src = nextStep.audioUrl;
+          sharedAudioRef.current!.play();
+          setIsPlaying(true);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error submitting user reply:", error);
+    } finally {
+      setRecordedBlob(null);
+    }
+  };
+
+  const handleRestart = () => {
+    setSteps([]);
+    setCurrentStep(0);
+    setRecordedBlob(null);
+    setIsPlaying(false);
+    setScoreText(null);
+    if (onWordStatesUpdate) onWordStatesUpdate(null);
+    if (onRestart) onRestart();
+  };
+
+  return (
+    <div className="p-6 bg-[#1a1a2e] text-white rounded-lg max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold mb-4">🎤 AI Conversation</h2>
+
+      {steps.length > 0 && (
+        <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4 p-3 bg-gray-900 rounded-lg">
+          {steps.slice(0, currentStep + 1).map((step) => (
+            <div key={step.id}>
               <div
-                className={`p-3 max-w-[80%] rounded-lg text-white ${
-                  msg.sender === "user" ? "bg-purple-600" : "bg-gray-700"
-                }`}
+                className={`p-2 rounded bg-opacity-90 ${
+                  step.speaker === "AI"
+                    ? "bg-purple-700 text-left"
+                    : "bg-blue-600 text-left ml-auto"
+                } max-w-[70%]`}
               >
-                <div className="flex items-center gap-2">
-                  <p className="whitespace-pre-line">{msg.text}</p>
-                  {msg.sender === "ai" && msg.audioUrl && (
-                    <button
-                      onClick={() => {
-                        if (msg.audioUrl) {
-                          setCurrentAudioSrc(msg.audioUrl);
-                          setIsPlaying(true);
-                          setTimeout(() => sharedAudioRef.current?.play(), 0);
-                        }
-                      }}
-                      className="ml-2 text-sm text-white hover:text-purple-300"
-                      title="Replay AI Voice"
-                    >
-                      🔊
-                    </button>
-                  )}
-                </div>
-                {msg.score !== undefined && (
-                  <p className="text-sm mt-1 text-gray-300">
-                    Pronunciation Score: {msg.score}%
-                  </p>
-                )}
-                {msg.errors && msg.errors.length > 0 && (
-                  <p className="text-sm text-red-400 mt-1">
-                    Errors: {msg.errors.join(", ")}
-                  </p>
-                )}
+                <strong>{step.speaker}:</strong> {step.text}
               </div>
             </div>
           ))}
-          <div ref={messagesEndRef} />
+          <div ref={scrollRef} />
         </div>
+      )}
 
-        {isPlaying && (
-          <div className="flex justify-center mt-4">
-            <Button
-              onClick={() => {
-                sharedAudioRef.current?.pause();
-                sharedAudioRef.current!.currentTime = 0;
-                setIsPlaying(false);
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Stop AI Voice
-            </Button>
-          </div>
-        )}
-
-        {isRecording && (
-          <div className="text-center text-yellow-300 font-semibold mt-4 animate-pulse">
-            🔴 Recording in progress...
-          </div>
-        )}
-
-        <div className="flex justify-center gap-4 mt-4">
-          <Button
-            onClick={startRecording}
-            disabled={isProcessing}
-            className="bg-blue-600 text-white"
-          >
-            Record
-          </Button>
-          <Button
-            onClick={stopRecording}
-            disabled={isProcessing}
-            className="bg-yellow-600 text-white"
-          >
-            Stop
-          </Button>
-          <Button
-            onClick={handleSendToBackend}
-            disabled={isProcessing || !recordedBlob}
-            className="bg-green-600 text-white"
-          >
-            Send
-          </Button>
+      {isRecording && (
+        <div className="text-center text-yellow-300 font-semibold mt-4 animate-pulse">
+          🔴 Recording in progress...
         </div>
+      )}
 
-        <div className="mt-4 space-y-2">
-          {userAudioUrl && (
-            <div>
-              <p className="text-sm text-white mb-1">Your Recording:</p>
-              <audio controls src={userAudioUrl} className="w-full" />
+      {isGenerating && (
+        <div className="text-center text-green-300 font-semibold mt-4 animate-pulse">
+          ⚙️ Generating dialogue, please wait...
+        </div>
+      )}
+
+      {steps.length === 0 ? (
+        <>
+          <p className="mb-4">🎙️ Speak a topic to generate a conversation</p>
+          <div className="flex gap-2 mb-4">
+            <Button onClick={startRecording} disabled={isGenerating}>🎤 Record Topic</Button>
+            <Button onClick={stopRecording} disabled={isGenerating}>⏹ Stop</Button>
+            <Button onClick={fetchDialogue} disabled={isGenerating}>⚡ Generate</Button>
+          </div>
+        </>
+      ) : (
+        <>
+          {steps[currentStep]?.speaker === "You" && (
+            <div className="flex gap-2 mb-4">
+              <Button onClick={startRecording}>🎤 Record</Button>
+              <Button onClick={stopRecording}>⏹ Stop</Button>
+              <Button onClick={handleUserSubmit}>✅ Submit</Button>
             </div>
           )}
-        </div>
 
-        {/* Hidden shared audio for AI */}
-        <audio
-          ref={sharedAudioRef}
-          src={currentAudioSrc || undefined}
-          onEnded={() => setIsPlaying(false)}
-          onPause={() => setIsPlaying(false)}
-        />
-      </div>
+          <div className="mt-6 flex justify-center">
+            <Button onClick={handleRestart} className="bg-blue-600 hover:bg-blue-700 text-white">
+              🔁 New Topic
+            </Button>
+          </div>
+        </>
+      )}
+
+      {scoreText && (
+        <div className="mt-6 text-center text-green-400 text-lg font-semibold">
+          {scoreText}
+        </div>
+      )}
+
+      <audio
+        ref={sharedAudioRef}
+        onEnded={() => {
+          setIsPlaying(false);
+          const next = currentStep + 1;
+          if (next < steps.length) {
+            setCurrentStep(next);
+            const nextStep = steps[next];
+            if (nextStep.speaker === "AI" && nextStep.audioUrl) {
+              sharedAudioRef.current!.src = nextStep.audioUrl;
+              sharedAudioRef.current!.play();
+              setIsPlaying(true);
+            }
+          }
+        }}
+        onPause={() => setIsPlaying(false)}
+      />
     </div>
   );
 };
