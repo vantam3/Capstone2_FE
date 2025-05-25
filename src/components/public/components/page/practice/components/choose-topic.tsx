@@ -85,14 +85,19 @@ function ChooseTopic({
             >
               <h5 className="text-xl font-bold text-white">{item.name}</h5>
               <p className="text-[16px] mt-2 text-gray-400">
-                {item.name === "Conversation"
-                  ? "Learn common phrases and expressions used in daily conversations."
+                {item.name === "Daily Life"
+                  ? "Practice speaking about daily routines, habits, and common personal activities."
+                  : item.name === "Technology"
+                  ? "Discuss gadgets, social media, and the impact of technology on our lives."
                   : item.name === "Travel"
-                  ? "Essential vocabulary and phrases for traveling abroad."
-                  : item.name === "Interview"
-                  ? "Essential language for job interviews."
+                  ? "Learn vocabulary and expressions for trips, destinations, and travel experiences."
+                  : item.name === "Education"
+                  ? "Explore school life, study habits, and the role of education in society."
+                  : item.name === "Family"
+                  ? "Talk about family relationships, roles, and shared experiences."
                   : "Other topics."}
               </p>
+
             </div>
           ))}
         </div>

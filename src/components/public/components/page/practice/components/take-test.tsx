@@ -17,15 +17,14 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
   const [isRecordingIndicatorVisible, setIsRecordingIndicatorVisible] = useState(false);
   const [audioPlayer, setAudioPlayer] = useState(null);
 
-  const GENRE_MAP = {
-    1: "Introductions",
-    2: "Job Interview",
-    3: "Travel",
-    4: "Friendship",
-    5: "Daily Life",
-    9: "Miscellaneous",
-    10: "Updated Topic"
-  };
+const GENRE_MAP = {
+  1: "Daily Life",
+  2: "Technology",
+  3: "Travel",
+  4: "Education",
+  5: "Family"
+};
+
 
   const LEVEL_MAP = {
     1: "Beginner",

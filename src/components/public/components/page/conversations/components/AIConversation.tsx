@@ -103,6 +103,31 @@ const AIConversation: React.FC<AIConversationProps> = ({ onWordStatesUpdate, onR
     }
   };
 
+  const calculateScore = () => {
+    const allWords = steps
+      .filter((s) => s.speaker === "You" && s.wordStates)
+      .flatMap((s) => s.wordStates || []);
+
+    const total = allWords.length;
+    const correct = allWords.filter((w) => w.correct).length;
+    const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    setScoreText(`🎯 Your Pronunciation Score: ${score}/100 (${correct}/${total} correct words)`);
+
+    toast.success(`🎉 Dialogue completed! Score: ${score}/100`, {
+      style: {
+        background: "#1a1a2e",
+        color: "#fff",
+        border: "1px solid #4ade80",
+      },
+    });
+
+    customToast({
+      title: "🎉 Dialogue completed!",
+      description: `Score: ${score}/100 (${correct}/${total} correct words)`,
+    });
+  };
+
   const handleUserSubmit = async () => {
     if (!recordedBlob || !steps[currentStep]) {
       console.warn("🚫 Missing recordedBlob or invalid step at handleUserSubmit");
@@ -130,48 +155,17 @@ const AIConversation: React.FC<AIConversationProps> = ({ onWordStatesUpdate, onR
         onWordStatesUpdate(result.words || []);
       }
 
-      console.log("🔢 Current step:", currentStep, "Total steps:", steps.length);
-
-      if (currentStep + 1 >= steps.length) {
-        console.log("✅ Dialogue completed. Calculating score...");
-
-        const allWords = updatedSteps
-          .filter((s) => s.speaker === "You" && s.wordStates)
-          .flatMap((s) => s.wordStates || []);
-
-        const total = allWords.length;
-        const correct = allWords.filter((w) => w.correct).length;
-        const score = total > 0 ? Math.round((correct / total) * 100) : 0;
-
-        setScoreText(`🎯 Your Pronunciation Score: ${score}/100 (${correct}/${total} correct words)`);
-
-        toast.success(`🎉 Dialogue completed! Score: ${score}/100`, {
-          style: {
-            background: "#1a1a2e",
-            color: "#fff",
-            border: "1px solid #4ade80",
-          },
-        });
-
-        customToast({
-          title: "🎉 Dialogue completed!",
-          description: `Score: ${score}/100 (${correct}/${total} correct words)`,
-        });
-      } else {
-        console.log("➡️ Moving to next step:", currentStep + 1);
-        setCurrentStep(currentStep + 1);
-        const nextStep = steps[currentStep + 1];
-
-        if (nextStep.speaker === "AI") {
-          if (nextStep.audioUrl) {
-            console.log("🔊 Playing AI audio for next step.");
-            sharedAudioRef.current!.src = nextStep.audioUrl;
-            sharedAudioRef.current!.play();
-            setIsPlaying(true);
-          } else {
-            console.log("⚠️ No audio URL for AI step", currentStep + 1);
-          }
+      const next = currentStep + 1;
+      if (next < steps.length) {
+        setCurrentStep(next);
+        const nextStep = steps[next];
+        if (nextStep.speaker === "AI" && nextStep.audioUrl) {
+          sharedAudioRef.current!.src = nextStep.audioUrl;
+          sharedAudioRef.current!.play();
+          setIsPlaying(true);
         }
+      } else {
+        calculateScore();
       }
     } catch (error) {
       console.error("❌ Error submitting user reply:", error);
@@ -266,15 +260,13 @@ const AIConversation: React.FC<AIConversationProps> = ({ onWordStatesUpdate, onR
           if (next < steps.length) {
             setCurrentStep(next);
             const nextStep = steps[next];
-            if (nextStep.speaker === "AI") {
-              if (nextStep.audioUrl) {
-                sharedAudioRef.current!.src = nextStep.audioUrl;
-                sharedAudioRef.current!.play();
-                setIsPlaying(true);
-              } else {
-                console.log("⚠️ No audio URL for AI step (audio end)", next);
-              }
+            if (nextStep.speaker === "AI" && nextStep.audioUrl) {
+              sharedAudioRef.current!.src = nextStep.audioUrl;
+              sharedAudioRef.current!.play();
+              setIsPlaying(true);
             }
+          } else {
+            calculateScore();
           }
         }}
         onPause={() => setIsPlaying(false)}
