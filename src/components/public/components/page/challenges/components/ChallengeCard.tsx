@@ -14,15 +14,17 @@ interface ChallengeCardProps {
   challenge: ChallengeInfo;
 }
 
-function ChallengeCard({ challenge }: ChallengeCardProps) {
-  const router = useNavigate();
+// Đảm bảo component trả về JSX.Element
+function ChallengeCard({ challenge }: ChallengeCardProps): JSX.Element {
+  const navigate = useNavigate();
 
   const handleNavigateToDetail = () => {
-    router(`/challenges/detail/${challenge.id}`);
+    navigate(`/challenges/detail/${challenge.id}`);
   };
 
-  const getDifficultyDisplay = (apiDifficulty: string) => {
-    const lowerDifficulty = apiDifficulty?.toLowerCase(); // Thêm ? để tránh lỗi nếu undefined
+  const getDifficultyDisplay = (apiDifficulty?: string) // Thêm '?' để an toàn nếu difficulty có thể undefined
+  : { text: string; bg: string; label: string } => { // Thêm kiểu trả về rõ ràng
+    const lowerDifficulty = apiDifficulty?.toLowerCase();
     if (lowerDifficulty === 'easy') return { text: 'text-[#21b95b]', bg: 'bg-[#1c243b]', label: 'Easy' };
     if (lowerDifficulty === 'medium') return { text: 'text-[#f59e09]', bg: 'bg-[#351e35]', label: 'Intermediate' };
     if (lowerDifficulty === 'hard') return { text: 'text-[#ef4444]', bg: 'bg-[#341139]', label: 'Advanced' };
@@ -30,27 +32,28 @@ function ChallengeCard({ challenge }: ChallengeCardProps) {
   };
 
   const difficultyDisplay = getDifficultyDisplay(challenge.difficulty);
+  // user_progress_status có thể là undefined, cần xử lý
   const isCompleted = challenge.user_progress_status === 'completed';
   const isInProgress = challenge.user_progress_status === 'in_progress';
 
   return (
     <div
-      className="bg-[#231246] border border-[#39246c] rounded-[16px] shadow-sm p-6 relative cursor-pointer hover:border-[#573aa0] transition-colors"
-      onClick={handleNavigateToDetail}
+      className="bg-[#231246] border border-[#39246c] rounded-[16px] shadow-sm p-6 relative cursor-pointer hover:border-[#573aa0] transition-colors flex flex-col justify-between h-full" // Thêm flex-col, justify-between và h-full để button ở cuối
+      onClick={handleNavigateToDetail} // Click vào cả thẻ sẽ điều hướng
     >
-      {challenge.is_featured && (
-        <div className="bg-[#8861ea] p-2 rounded-tr-[16px] rounded-bl-[16px] absolute right-0 top-0">
-          <p className="text-xs font-bold text-white text-center">Featured</p>
-        </div>
-      )}
+      <div> {/* Phần nội dung trên */}
+        {challenge.is_featured && (
+          <div className="bg-[#8861ea] px-2 py-1 rounded-tr-[15px] rounded-bl-[15px] absolute right-0 top-0 z-10">
+            <p className="text-xs font-bold text-white text-center">Featured</p>
+          </div>
+        )}
 
-      <h5 className="text-xl font-bold text-white truncate pr-16">{challenge.title}</h5>
-      <h5 className="text-sm font-bold text-[#bebace] mt-2 h-10 overflow-hidden text-ellipsis">
-        {challenge.description}
-      </h5>
+        <h5 className="text-xl font-bold text-white truncate pr-16">{challenge.title}</h5>
+        <h5 className="text-sm font-normal text-[#bebace] mt-2 h-10 overflow-hidden text-ellipsis line-clamp-2">
+          {challenge.description}
+        </h5>
 
-      <div className="mt-4 flex items-center w-full">
-        <div className="space-y-3 mt-4 w-full"> {/* Giảm space-y một chút */}
+        <div className="mt-4 space-y-3"> {/* Gom các thông tin meta lại */}
           <div className="flex flex-wrap items-center gap-2">
             <div className={`relative rounded-full font-bold px-3 py-1 text-[11px] ${difficultyDisplay.text} ring-1 ring-[#3b2372] ${difficultyDisplay.bg}`}>
               {difficultyDisplay.label}
@@ -61,7 +64,7 @@ function ChallengeCard({ challenge }: ChallengeCardProps) {
             {challenge.days_left && (
               <div
                 className={`relative flex items-center justify-center font-bold gap-1 rounded-full px-3 py-1 text-[11px] ring-1 ${
-                  isCompleted ? 'text-[#21b95b] ring-[#08361e] bg-[#1c243b]' : 
+                  isCompleted ? 'text-[#21b95b] ring-[#08361e] bg-[#1c243b]' :
                   challenge.days_left.toLowerCase() === "ended" ? 'text-red-400 ring-red-700 bg-red-900/50' :
                   'text-[#d2cce8] ring-[#4b2f8d] bg-[#4b2f8d]'
                 }`}
@@ -80,10 +83,10 @@ function ChallengeCard({ challenge }: ChallengeCardProps) {
             <p className="flex items-center gap-1">
               <UsersIcon className="w-4 h-4" /> {challenge.participant_count} Participants
             </p>
-            {challenge.level && (
+            {challenge.level !== undefined && ( // Kiểm tra level có tồn tại không
               <p className="flex items-center gap-1">
                 <ArrowTrendingUpIcon className="w-4 h-4" />
-                {typeof challenge.level === 'number' ? `Level ${challenge.level}` : challenge.level}
+                Level {challenge.level}
               </p>
             )}
           </div>
@@ -96,29 +99,37 @@ function ChallengeCard({ challenge }: ChallengeCardProps) {
               />
             </div>
           )}
-
-          <button
-            type="button"
-            disabled={challenge.days_left?.toLowerCase() === "ended" && !isCompleted}
-            className="text-[#f1eefd] flex items-center justify-center gap-2 font-[600] w-full bg-[#8861ea] hover:bg-[#7a57d4] focus:ring-4 focus:ring-[#8861ea]/50 rounded-lg text-sm px-5 py-2.5 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isCompleted ? (
-              <>
-                <StarIcon className="w-4 h-4" /> View Results
-              </>
-            ) : isInProgress ? (
-              <>
-                <FireIcon className="w-4 h-4" /> Continue
-              </>
-            ) : challenge.days_left?.toLowerCase() === "ended" ? (
-                "Challenge Ended"
-            ) : (
-              <>
-                <FireIcon className="w-4 h-4" /> Start Challenge
-              </>
-            )}
-          </button>
         </div>
+      </div>
+
+      {/* Nút hành động ở cuối card */}
+      <div className="mt-auto pt-4"> {/* mt-auto đẩy nút xuống cuối nếu card là flex-col */}
+        <button
+          type="button"
+          onClick={(e) => {
+              e.stopPropagation(); // Ngăn sự kiện click của card cha nếu nút này có hành động riêng
+                                   // Hoặc vẫn điều hướng nếu đó là mục đích của nút này
+              handleNavigateToDetail(); // Nút này cũng điều hướng đến chi tiết
+          }}
+          disabled={(challenge.days_left?.toLowerCase() === "ended" && !isCompleted) || false} // Đảm bảo không phải undefined
+          className="text-[#f1eefd] flex items-center justify-center gap-2 font-[600] w-full bg-[#8861ea] hover:bg-[#7a57d4] focus:ring-4 focus:ring-[#8861ea]/50 rounded-lg text-sm px-5 py-2.5 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isCompleted ? (
+            <>
+              <StarIcon className="w-4 h-4" /> View Results
+            </>
+          ) : isInProgress ? (
+            <>
+              <FireIcon className="w-4 h-4" /> Continue
+            </>
+          ) : challenge.days_left?.toLowerCase() === "ended" ? (
+              "Challenge Ended"
+          ) : (
+            <>
+              <FireIcon className="w-4 h-4" /> Start Challenge
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

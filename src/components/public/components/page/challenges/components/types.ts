@@ -1,44 +1,38 @@
 // src/components/public/components/page/challenges/components/types.ts
 
 export interface ChallengeExerciseInfo {
-  id: number; // API trả về số
+  id: number;
   title: string;
   description: string;
   order: number;
-  // speaking_text_content?: string; // Sẽ không có nếu không có API riêng cho exercise detail
+  speaking_text_content: string | null; // Nội dung text đã được giải mã từ backend
 }
 
 export interface ChallengeInfo {
-  id: number; // API trả về số
+  id: number;
   title: string;
   description: string;
-  is_featured?: boolean;
-  difficulty: string; // 'easy', 'medium', 'hard' từ API
+  is_featured: boolean;
+  difficulty: 'easy' | 'medium' | 'hard' | string;
   reward_points: number;
-  start_date?: string;
-  end_date?: string;
+  start_date: string; // Chuỗi ISO 8601 datetime
+  end_date: string;   // Chuỗi ISO 8601 datetime
   participant_count: number;
-  level: string | number; // API có thể trả số hoặc tên
+  level: number;
   days_left: string;
-  exercises: ChallengeExerciseInfo[]; // Quan trọng: API trả về mảng này
-  slug?: string; // Giữ lại nếu bạn muốn dùng, nhưng API dùng ID
+  exercises: ChallengeExerciseInfo[];
 
-  // Frontend-only hoặc từ UserProgress
   user_progress_status?: 'not_started' | 'in_progress' | 'completed';
   user_completion_percentage?: number;
 }
 
 export interface UserChallengeProgressData {
+  // ... (giữ nguyên như trước nếu bạn có logic gộp tiến độ sau)
   id: number;
-  challenge: ChallengeInfo; // API UserChallengeProgressSerializer trả về object ChallengeSerializer
+  challenge: ChallengeInfo;
   score: number;
   completion_percentage: number;
   status: 'not_started' | 'in_progress' | 'completed';
   last_attempted_date: string;
   completed_date?: string | null;
-}
-
-// Dùng cho Speakingtest.tsx nếu không có API riêng cho exercise detail
-export interface ExerciseDetailForSpeakingTest extends ChallengeExerciseInfo {
-  // Không có speaking_text_content ở đây nếu dùng cách 2
 }
