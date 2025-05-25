@@ -20,6 +20,8 @@ import HomePage from "./components/public/components/page/home/home";
 import Profile from "./components/public/components/page/account/profile";
 import Account from "./components/public/components/page/account";
 import PracticeHistory from "./components/public/components/page/practice/components/history";
+import PracticeV2 from "./components/public/components/page/practice-v2";
+import CurrentResult from './components/public/components/page/practice/components/current-result';
 import Conversation from "./components/public/components/page/conversations/conversation";
 
 import AdminProtectedRoute from "./components/AdminProtectedRoute"; 
@@ -45,7 +47,8 @@ const App = () => (
             <Route path="challenges/:slug" element={<ChallengeMainPage />} />
             <Route path="leader-board" element={<Leaderboard />} />
             <Route path="about" element={<About />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="/profile/:id" element={<Profile />} />
+
           </Route>
           <Route path="/sign-in" element={<Account />} />
 

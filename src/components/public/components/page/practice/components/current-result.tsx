@@ -1,148 +1,88 @@
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+const GENRE_MAP = {
+  1: "Introductions",
+  2: "Job Interview",
+  3: "Travel",
+  4: "Friendship",
+  5: "Daily Life",
+  9: "Miscellaneous",
+  10: "Updated Topic"
+};
 
-function CurrentResult() {
-  const data = [
-    {
-      title: "Question 1",
-      content: "What is your name?",
-      your_answer: {
-        title: "Your answer",
-        content: "My name is John.",
-      },
-      correct_answer: null,
-      result: "correct",
-    },
-    {
-      title: "Question 2",
-      content: "Where are you from?",
-      your_answer: {
-        title: "Your answer",
-        content: "I'm from Canada.",
-      },
-      correct_answer: {
-        title: "Correct answer",
-        content: "I'm from Vietnam.",
-      },
-      result: "wrong",
-    },
-    {
-      title: "Question 3",
-      content: "What do you do?",
-      your_answer: {
-        title: "Your answer",
-        content: "I am a teacher.",
-      },
-      correct_answer: {
-        title: "Correct answer",
-        content: "I am a software engineer.",
-      },
-      result: "wrong",
-    },
-    {
-      title: "Question 4",
-      content: "Do you like music?",
-      your_answer: {
-        title: "Your answer",
-        content: "Yes, I love jazz.",
-      },
-      correct_answer: null,
-      result: "correct",
-    },
-    {
-      title: "Question 5",
-      content: "What is your favorite color?",
-      your_answer: {
-        title: "Your answer",
-        content: "My favorite color is blue.",
-      },
-      correct_answer: {
-        title: "Correct answer",
-        content: "My favorite color is green.",
-      },
-      result: "wrong",
-    },
-  ];
+const LEVEL_MAP = {
+  1: "Beginner",
+  2: "Intermediate",
+  3: "Advanced"
+};
 
+function CurrentResult({ score, user_text, original_text, topicName, levelName, examTime }) {
   return (
     <div className="mt-8">
-      <h3 className="text-white text-xl mt-4 font-bold">Errors to improve:</h3>
+      <h3 className="text-white text-xl mt-4 font-bold">Speaking Result</h3>
       <div className="mt-4">
-        <p>Topic:</p>
-        <p>Level: Basic</p>
-        <p>Exam day: 17:00 13/04/2025</p>
-      </div>
-      <div className="mt-4 bg-[#230e58] rounded-[10px] p-6">
-        <p className="text-white text-xl font-semibold">Your score</p>
-        <div className="flex items-center">
-          <p className="text-red-600 text-3xl font-bold">0%</p>
-          <div className="ml-auto">
-            <p className="text-gray-400 text-lg">
-              Number of correct sentences: 0
-            </p>
-            <p className="text-gray-400 text-lg">
-              Total number of sentences: 8
-            </p>
-          </div>
-        </div>
-        <div className="w-full bg-[#4b2f8d] rounded-full h-2.5 mt-2">
-          <div
-            className="bg-[4b2f8d] h-2.5 rounded-full"
-            style={{ width: "45%" }}
-          />
-        </div>
+        <p>Topic: {GENRE_MAP[topicName] || topicName}</p>
+        <p>Level: {LEVEL_MAP[levelName] || levelName}</p>
+        <p>Exam time: {examTime}</p>
       </div>
 
-      <h3 className="text-lg text-white">Your answer</h3>
-      {data.map((item) => (
-        <div
-          className={`w-full p-4 mt-4 bg-[#1a0940] border border-[#2d1674] rounded-[10px] shadow-sm`}
-          key={item.title}
-        >
-          <h5 className="mb-2 text-[14px]  text-gray-400">{item.title}:</h5>
-          <p className="mb-2 text-[16px] text-white">{item.content}</p>
-          <h5 className="mb-2 text-[16px] text-gray-400 flex items-center gap-2">
-            <XCircleIcon className="w-6 h-6 text-red-600" />
-            {item.your_answer.title}
-          </h5>
-          <p
-            className={`ml-4 text-sm ${
-              item.result === "correct" ? "text-green-400" : "text-red-400"
-            }`}
-          >
-            {item.your_answer.content}
-          </p>
-          {item.correct_answer && (
-            <>
-              <h5 className="mb-2 text-[16px] font-bold text-white">
-                {item.correct_answer.title}
-              </h5>
-              <p className="text-sm text-green-400">
-                {item.correct_answer.content}
-              </p>
-            </>
-          )}
-          <h5
-            className={`text-[16px] flex items-center gap-2 mt-4 ${
-              item.result === "correct" ? "text-green-400" : "text-red-400"
-            }`}
-          >
-            {item.result === "correct" ? (
-              <XCircleIcon className="w-6 h-6" />
-            ) : (
-              <CheckCircleIcon className="w-6 h-6" />
-            )}
-            {item.result}
-          </h5>
-        </div>
-      ))}
-      <div className="mt-4">
-        <button
-          type="button"
-          className="text-white bg-[#090909] border border-gray-50 hover:bg-[#09080d] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2"
-        >
-          Quay lại
-        </button>
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-700 p-6 rounded-xl shadow-lg text-white mt-4">
+          <h3 className="text-lg font-semibold mb-2">🎯 Your Score</h3>
+          <div className="text-4xl font-extrabold text-green-300">{score}%</div>
+          <p className="text-sm text-gray-100 mt-1">based on your spoken response</p>
+
+          <div className="w-full bg-purple-900 rounded-full h-2 mt-4">
+            <div
+              className="bg-green-400 h-2 rounded-full"
+              style={{ width: `${score}%` }}
+            ></div>
+          </div>
       </div>
+
+
+      <div className="mt-6">
+  <h4 className="text-lg text-white font-semibold">📝 Original Text</h4>
+  <p className="text-sm text-gray-200 whitespace-pre-wrap mt-2 bg-[#1e1140] p-3 rounded-lg">
+    {original_text}
+  </p>
+
+  <div className="mt-6">
+  <h4 className="text-lg text-white font-semibold mt-6">🎤 Your Spoken Text:</h4>
+  <p className="text-sm bg-[#300c3f] p-4 rounded-lg text-white whitespace-pre-wrap break-words max-w-[700px]">
+  {Array.isArray(user_text) ? (
+    user_text.map((item, index) => {
+      if (item.status === "correct") {
+        return <span key={index} className="text-green-400 mr-1">{item.word}</span>;
+      } else if (item.status === "wrong") {
+        return (
+          <span key={index} className="text-red-400 mr-1" title={`Expected: ${item.expected}`}>
+            {item.word}
+          </span>
+        );
+      } else if (item.status === "missing") {
+        return <span key={index} className="text-yellow-400 line-through mr-1">{item.word}</span>;
+      } else {
+        return <span key={index} className="mr-1">{item.word}</span>;
+      }
+    })
+  ) : (
+    <span className="text-red-300">{user_text}</span>
+  )}
+</p>
+
+</div>
+
+</div>
+
+
+<div className="mt-6 flex justify-center">
+  <button
+    className="bg-[#090909] hover:bg-[#1a1a1a] text-white border border-white px-6 py-2 rounded-lg text-sm font-medium"
+    onClick={() => window.location.reload()} // hoặc gọi setActiveTab("tab_1")
+  >
+    🔁 Practice Again
+  </button>
+</div>
+
     </div>
   );
 }

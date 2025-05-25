@@ -1,3 +1,4 @@
+// components/ConversationPage.tsx
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import AIConversation from "@/components/public/components/page/conversations/components/AIConversation";
@@ -14,7 +15,7 @@ const PronunciationError: React.FC<PronunciationErrorProps> = ({
   suggestion,
 }) => {
   return (
-    <div className="bg-[#13111C] rounded-lg p-4 mb-4 border border-red-500 border-opacity-30 shadow-md hover:shadow-lg transition-all duration-300">
+    <div className="bg-[#13111C] rounded-lg p-4 mb-4 border border-red-500 border-opacity-30">
       <div className="flex items-center mb-2">
         <Badge
           variant="outline"
@@ -71,29 +72,6 @@ const ConversationPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 mt-[8rem]">
-      <div className="flex items-center text-gray-400 text-sm mb-4">
-        <span
-          className="hover:text-white transition-colors flex items-center cursor-pointer"
-          onClick={() => window.history.back()}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Go back to the homepage
-        </span>
-      </div>
-
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#A78BFA] to-[#5B21B6]">
           Chat with AI and Improve Your Pronunciation
@@ -110,22 +88,8 @@ const ConversationPage: React.FC = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-gradient-to-r from-[#1E1A2B] to-[#251D35] rounded-xl p-6 shadow-lg border border-red-500 border-opacity-20">
-            <h2 className="text-xl font-semibold mb-4 flex items-center bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-pink-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2 text-red-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+          <div className="bg-gradient-to-r from-[#1E1A2B] to-[#251D35] rounded-xl p-6 border border-red-500 border-opacity-20">
+            <h2 className="text-xl font-semibold mb-4 text-red-300">
               Common Pronunciation Errors
             </h2>
             <div className="space-y-4 max-h-96 overflow-y-auto pr-1 custom-scrollbar">

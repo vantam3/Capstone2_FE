@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ChooseTopic from "./components/choose-topic";
 import TakeTest from "./components/take-test";
 import Result from "./components/result";
+import CurrentResult from "./components/current-result";
 
 function Practice() {
   const tabs = [
@@ -33,6 +34,9 @@ function Practice() {
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].code);
+  const [selectedLevel, setSelectedLevel] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [resultData, setResultData] = useState(null);
   const router = useNavigate();
 
   return (
@@ -90,11 +94,22 @@ function Practice() {
           </div>
         </div>
         {activeTab === "tab_1" ? (
-          <ChooseTopic setActiveTab={setActiveTab} />
+          <ChooseTopic
+            setActiveTab={setActiveTab}
+            selectedLevel={selectedLevel}
+            selectedTopic={selectedTopic}
+            setSelectedLevel={setSelectedLevel}
+            setSelectedTopic={setSelectedTopic}
+          />
         ) : activeTab === "tab_2" ? (
-          <TakeTest />
+          <TakeTest
+            selectedLevel={selectedLevel}
+            selectedTopic={selectedTopic}
+            setActiveTab={setActiveTab}
+            setResultData={setResultData}
+          />
         ) : (
-          <Result />
+          resultData && <CurrentResult {...resultData} />
         )}
       </div>
     </>
