@@ -47,7 +47,7 @@ const App = () => (
             <Route path="challenges/:slug" element={<ChallengeMainPage />} />
             <Route path="leader-board" element={<Leaderboard />} />
             <Route path="about" element={<About />} />
-            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/profile/" element={<Profile />} />
 
           </Route>
           <Route path="/sign-in" element={<Account />} />
