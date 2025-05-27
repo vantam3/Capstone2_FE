@@ -51,7 +51,7 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
     setIsSubmitting(true);
     setMessage(null);
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       setMessage({ text: "Authentication token not found. Please log in.", type: "error" });
       setIsSubmitting(false);
@@ -78,7 +78,7 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
       );
 
       const updatedUserFromAPI: UserProfileData = response.data;
-      localStorage.setItem("user", JSON.stringify(updatedUserFromAPI));
+      sessionStorage.setItem("user", JSON.stringify(updatedUserFromAPI));
       onUserUpdated(updatedUserFromAPI);
 
       setMessage({

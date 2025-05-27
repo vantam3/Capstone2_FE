@@ -16,7 +16,7 @@ function ChallengePracticePage() {
   useEffect(() => {
     const fetchDetail = async () => {
       const res = await axios.get(`http://localhost:8000/api/challenges/exercises/${exerciseId}/detail/`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
       });
       setExercise(res.data);
     };
@@ -50,7 +50,7 @@ function ChallengePracticePage() {
     const formData = new FormData();
     formData.append("audio_file", new File([audioBlob], "exercise.webm"));
     const res = await axios.post(`http://localhost:8000/api/challenges/exercises/${exerciseId}/submit_attempt/`, formData, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
     });
     navigate(`/challenges/${challengeId}/result/${res.data.score}`);
   };

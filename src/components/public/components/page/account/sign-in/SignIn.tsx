@@ -5,16 +5,12 @@ import * as yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// No longer importing useAuth
-// import { useAuth } from "@/context/AuthContext";
-
 const schema = yup.object({
   username: yup.string().required("Username is required"),
   password: yup.string().required("Password is required").min(6, "Password must be at least 6 characters"),
 });
 
 const SignIn = ({ setActiveTab }: any) => {
-  // const { login } = useAuth(); // Removed AuthContext
   const navigate = useNavigate();
   const {
     register,
@@ -23,31 +19,29 @@ const SignIn = ({ setActiveTab }: any) => {
   } = useForm({ resolver: yupResolver(schema) });
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // Added for success notification
+  const [successMessage, setSuccessMessage] = useState("");
 
   const onSubmit = async (data: any) => {
-    setErrorMessage(""); // Clear previous messages
-    setSuccessMessage(""); // Clear previous messages
+    setErrorMessage("");
+    setSuccessMessage("");
     try {
-      const response = await axios.post("http://localhost:8000/login/", data); //
-      localStorage.setItem("token", response.data.token); //
-      localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user data in localStorage
+      const response = await axios.post("http://localhost:8000/login/", data);
+      sessionStorage.setItem("token", response.data.token);
+      sessionStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // login(response.data.user); // Removed AuthContext usage
       setSuccessMessage("Login successful! Redirecting...");
 
-      // Adding a small delay for the user to see the success message
       setTimeout(() => {
-        if (response.data.user.is_superuser) { //
-          navigate("/admin"); //
+        if (response.data.user.is_superuser) {
+          navigate("/admin");
         } else {
-          navigate("/"); //
+          navigate("/");
         }
-      }, 1000); // 1 second delay
+      }, 1000);
 
     } catch (err: any) {
-      setSuccessMessage(""); // Clear success message on error
-      setErrorMessage(err.response?.data?.message || "Login failed. Please check your credentials."); //
+      setSuccessMessage("");
+      setErrorMessage(err.response?.data?.message || "Login failed. Please check your credentials.");
     }
   };
 
@@ -63,7 +57,7 @@ const SignIn = ({ setActiveTab }: any) => {
         <input
           id="username"
           {...register("username")}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#8861ea] focus:border-[#8861ea] sm:text-sm"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#8861ea] focus:border-[#8861ea] sm:text-sm text-slate-900"
           placeholder="Enter your username"
         />
         <p className="text-red-500 text-xs mt-1">{errors.username?.message}</p>
@@ -80,7 +74,7 @@ const SignIn = ({ setActiveTab }: any) => {
           id="password"
           {...register("password")}
           type="password"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#8861ea] focus:border-[#8861ea] sm:text-sm"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#8861ea] focus:border-[#8861ea] sm:text-sm text-slate-900"
           placeholder="Enter your password"
         />
         <p className="text-red-500 text-xs mt-1">{errors.password?.message}</p>

@@ -25,7 +25,7 @@ function Header() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedUserData = localStorage.getItem("user");
+      const storedUserData = sessionStorage.getItem("user");
       try {
         if (storedUserData) {
           setLoggedInUser(JSON.parse(storedUserData));
@@ -33,11 +33,11 @@ function Header() {
           setLoggedInUser(null);
         }
       } catch (error) {
-        console.error("Failed to parse user data from localStorage:", error);
+        console.error("Failed to parse user data from sessionStorage:", error);
         setLoggedInUser(null);
         // Optionally clear corrupted data
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
       }
     }
   }, [pathname]); // Re-check user status on route change
@@ -58,8 +58,8 @@ function Header() {
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
     }
     setLoggedInUser(null);
     setIsOpen(false);

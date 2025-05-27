@@ -12,7 +12,7 @@ function ChallengeMainPage() {
 
   useEffect(() => {
     const fetchChallenge = async () => {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await axios.get(`http://localhost:8000/api/challenges/${challengeId}/`, { headers });
       setChallenge(res.data);

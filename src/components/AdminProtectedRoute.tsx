@@ -12,15 +12,15 @@ interface UserData {
 }
 
 const getAuthData = (): { isAuthenticated: boolean; isAdmin: boolean; user: UserData | null } => {
-  const storedUserData = localStorage.getItem('user');
+  const storedUserData = sessionStorage.getItem('user');
   if (storedUserData) {
     try {
       const user: UserData = JSON.parse(storedUserData);
       return { isAuthenticated: true, isAdmin: user?.is_superuser === true, user };
     } catch (error) {
-      console.error("Lỗi khi parse dữ liệu người dùng từ localStorage:", error);
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      console.error("Lỗi khi parse dữ liệu người dùng từ sessionStorage:", error);
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('token');
       return { isAuthenticated: false, isAdmin: false, user: null };
     }
   }

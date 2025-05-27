@@ -157,7 +157,7 @@ function TakeChallengeExercise() {
     formData.append("audio_file", audioFile);
 
     axios.post(`http://localhost:8000/api/challenges/exercises/${exerciseId}/submit_attempt/`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
       })
       .then((res) => {
         // Backend trả về { score: number, (các thông tin feedback khác nếu có) }
