@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { MicrophoneIcon } from "@heroicons/react/24/outline";
+import { MicrophoneIcon, ArrowPathIcon, CloudArrowUpIcon } from "@heroicons/react/24/outline";
 
 function ChallengePracticePage() {
   const { challengeId, exerciseId } = useParams();
@@ -9,6 +9,7 @@ function ChallengePracticePage() {
   const [exercise, setExercise] = useState<any>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
@@ -47,6 +48,7 @@ function ChallengePracticePage() {
 
   const handleSubmit = async () => {
     if (!audioBlob) return;
+    setIsSubmitting(true);
     const formData = new FormData();
     formData.append("audio_file", new File([audioBlob], "exercise.webm"));
     const res = await axios.post(`http://localhost:8000/api/challenges/exercises/${exerciseId}/submit_attempt/`, formData, {
@@ -72,7 +74,7 @@ function ChallengePracticePage() {
           <p>2. Read the sentence above.</p>
           <p>3. Click Stop when done and then Submit.</p>
         </div>
-        <div className="flex justify-center mt-6">
+        <div className="flex flex-col items-center mt-6 gap-2">
           <button
             onClick={toggleRecording}
             className="flex items-center gap-2 bg-[#5f3dc4] px-6 py-3 rounded text-white"
@@ -80,18 +82,31 @@ function ChallengePracticePage() {
             <MicrophoneIcon className="w-5 h-5" />
             {isRecording ? "Stop Recording" : "Start Recording"}
           </button>
+          {isRecording && (
+            <div className="flex items-center text-sm text-purple-300">
+              <ArrowPathIcon className="w-4 h-4 animate-spin mr-2" /> Recording in progress...
+            </div>
+          )}
         </div>
         {audioBlob && (
           <div className="mt-6 text-center">
             <audio controls className="w-full">
               <source src={URL.createObjectURL(audioBlob)} />
             </audio>
-            <button
-              onClick={handleSubmit}
-              className="mt-4 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
-            >
-              Submit Recording
-            </button>
+            <div className="flex flex-col items-center mt-4 gap-2">
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+              >
+                Submit Recording
+              </button>
+              {isSubmitting && (
+                <div className="flex items-center text-sm text-green-300">
+                  <CloudArrowUpIcon className="w-4 h-4 animate-bounce mr-2" /> Submitting...
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

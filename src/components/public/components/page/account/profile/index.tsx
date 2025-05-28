@@ -1,9 +1,9 @@
 // src/pages/ProfilePage.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SimpleSidebar } from "@/components/public/components/page/account/profile/components/side-bar"; // Giả sử đường dẫn này đúng
-import { UserInfo, UserProfileData } from "@/components/public/components/page/account/profile/components/user-info"; // Import UserInfo và UserProfileData
-import { SimpleHistory } from "@/components/public/components/page/account/profile/components/histories"; // Giả sử đường dẫn này đúng
+import { SimpleSidebar } from "@/components/public/components/page/account/profile/components/side-bar";
+import { UserInfo, UserProfileData } from "@/components/public/components/page/account/profile/components/user-info"; 
+import { SimpleHistory } from "@/components/public/components/page/account/profile/components/histories"; 
 
 export default function ProfilePage() {
   const [activePage, setActivePage] = useState("profile");

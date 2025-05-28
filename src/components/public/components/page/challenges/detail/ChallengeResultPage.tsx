@@ -6,7 +6,7 @@ function ChallengeResultPage() {
 
   return (
     <div className="mt-24 max-w-xl mx-auto p-6 text-white text-center">
-      <h2 className="text-3xl font-bold mb-6">🎉 Challenge Completed!</h2>
+      <h2 className="text-3xl font-bold mb-6">🎉 Exercise Completed!</h2>
       <p className="text-lg text-gray-300 mb-2">You earned:</p>
       <p className="text-5xl text-green-400 font-extrabold">{Math.round(Number(score))} Points</p>
       <button
