@@ -45,7 +45,7 @@ const ConversationPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8 mt-[8rem]">
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#A78BFA] to-[#5B21B6]">
-          Chat with AI and Improve Your Pronunciation
+          Speaking with AI and Improve Your Pronunciation
         </h1>
         <p className="text-gray-300 max-w-2xl mx-auto">
           Practice English pronunciation and get real-time feedback on every word you say.
