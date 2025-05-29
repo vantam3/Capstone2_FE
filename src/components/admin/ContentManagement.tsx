@@ -25,17 +25,16 @@ const ContentManagement = () => {
     category: 'Business',
     level: 'Intermediate',
     content: '',
-    status: 'Draft'
+    status: 'Public'
   });
-  const GENRE_MAP = {
-  1: "Introductions",
-  2: "Job Interview",
+const GENRE_MAP = {
+  1: "Daily Life",
+  2: "Technology",
   3: "Travel",
-  4: "Friendship",
-  5: "Everyday Life",
-  9: "Misc",
-  10: "Updates"
+  4: "Education",
+  5: "Family"
 };
+
 
 const LEVEL_MAP = {
   1: "Beginner",
@@ -58,7 +57,7 @@ const LEVEL_MAP = {
         genre: item.genre,
         level: item.level,
         content: item.content,
-        status: item.status || 'Draft',
+        status: item.status || 'Public',
         dateAdded: item.created_at?.split("T")[0] || ''
       }));
       setDocuments(transformed);
@@ -123,7 +122,7 @@ const LEVEL_MAP = {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Content Management</h2>
         <Button onClick={() => {
-          setNewDocument({ title: '', category: 'Business', level: 'Intermediate', content: '', status: 'Draft' });
+          setNewDocument({ title: '', category: 'Business', level: 'Intermediate', content: '', status: 'Public' });
           setEditingDoc(null);
           setDialogOpen(true);
         }}><Plus className="w-4 h-4 mr-2" /> Add Document</Button>
@@ -175,7 +174,7 @@ const LEVEL_MAP = {
                             category: doc.genre,
                             level: doc.level,
                             content: doc.content,
-                            status: doc.status || 'Draft'
+                            status: doc.status || 'Public'
                           });
                           setDialogOpen(true);
                         }}>Edit</DropdownMenuItem>

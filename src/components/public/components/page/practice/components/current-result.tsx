@@ -1,13 +1,12 @@
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 const GENRE_MAP = {
-  1: "Introductions",
-  2: "Job Interview",
+  1: "Daily Life",
+  2: "Technology",
   3: "Travel",
-  4: "Friendship",
-  5: "Daily Life",
-  9: "Miscellaneous",
-  10: "Updated Topic"
+  4: "Education",
+  5: "Family"
 };
+
 
 const LEVEL_MAP = {
   1: "Beginner",
