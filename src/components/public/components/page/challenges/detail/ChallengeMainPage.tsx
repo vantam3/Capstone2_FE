@@ -75,7 +75,7 @@ function ChallengeMainPage() {
         <div className="space-y-6">
           <div className="w-full p-4 sm:p-6 bg-[#190b37] border border-[#4b2f8d] rounded-[16px] shadow-lg">
             <div className="flex items-center gap-2 mb-5">
-              <h3 className="text-xl font-bold text-white">Leaderboard</h3>
+              <h3 className="text-xl font-bold text-white">Challenge Leaderboard</h3>
             </div>
             <div className="space-y-3.5">
               {leaderboard.map((item, index) => (
