@@ -54,7 +54,15 @@ function ChallengeMainPage() {
                 <h3 className="font-semibold text-lg">{exercise.title}</h3>
                 <p className="text-sm text-gray-400 mt-1">{exercise.description}</p>
                 <button
-                  onClick={() => navigate(`/challenges/${challenge.id}/practice/${exercise.id}`)}
+                  onClick={() => {
+                  const token = sessionStorage.getItem("token");
+                  if (!token) {
+                    alert("You must be signed in to start this exercise.");
+                    return;
+                }
+                navigate(`/challenges/${challenge.id}/practice/${exercise.id}`);
+          }}
+
                   className="mt-3 px-4 py-2 bg-[#8861ea] rounded text-sm"
                 >
                   Start Exercise
