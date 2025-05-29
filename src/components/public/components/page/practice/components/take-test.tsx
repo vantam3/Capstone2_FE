@@ -101,41 +101,53 @@ const GENRE_MAP = {
   };
 
   const handleSubmit = () => {
-    if (!audioBlob) {
-      setError("No recording available to submit.");
-      return;
-    }
+  if (!audioBlob) {
+    setError("No recording available to submit.");
+    return;
+  }
 
-    const webmFile = new File([audioBlob], "user_audio.webm", { type: "audio/webm" });
-    const formData = new FormData();
-    formData.append("audio_file", webmFile);
+  const webmFile = new File([audioBlob], "user_audio.webm", { type: "audio/webm" });
+  const formData = new FormData();
+  formData.append("audio_file", webmFile);
 
-    if (!question?.id) {
-      setError("No question selected.");
-      return;
-    }
+  if (!question?.id) {
+    setError("No question selected.");
+    return;
+  }
 
-    formData.append("speaking_text_id", question.id);
+  formData.append("speaking_text_id", question.id);
 
-    axios
-      .post("http://127.0.0.1:8000/api/submit-speaking/", formData)
-      .then((res) => {
-        setResultData({
-          score: res.data.score,
-          user_text: res.data.user_text,
-          original_text: res.data.original_text,
-          examTime: new Date().toLocaleString(),
-          topicName: selectedTopic,
-          levelName: selectedLevel,
-        });
-        setActiveTab("tab_3");
-      })
-      .catch((err) => {
-        console.error("Upload failed:", err);
-        const message = err.response?.data?.error || "An error occurred while submitting the audio.";
-        setError(message);
+  // Lấy token từ sessionStorage
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    setError("You must be logged in to submit.");
+    return;
+  }
+
+  axios
+    .post("http://127.0.0.1:8000/api/submit-speaking/", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,  // Gửi token vào header
+        "Content-Type": "multipart/form-data", // Có thể không cần set thủ công axios tự nhận
+      }
+    })
+    .then((res) => {
+      setResultData({
+        score: res.data.score,
+        user_text: res.data.user_text,
+        original_text: res.data.original_text,
+        examTime: new Date().toLocaleString(),
+        topicName: selectedTopic,
+        levelName: selectedLevel,
       });
-  };
+      setActiveTab("tab_3");
+    })
+    .catch((err) => {
+      console.error("Upload failed:", err);
+      const message = err.response?.data?.error || "An error occurred while submitting the audio.";
+      setError(message);
+    });
+};
 
   return (
     <>
