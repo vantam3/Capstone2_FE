@@ -34,7 +34,7 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
   };
 
   useEffect(() => {
-    const selectedTextId = localStorage.getItem("selectedTextId");
+    const selectedTextId = sessionStorage.getItem("selectedTextId");
     if (!selectedTextId) return;
 
     axios.get(`http://127.0.0.1:8000/speaking-texts/${selectedTextId}/`)

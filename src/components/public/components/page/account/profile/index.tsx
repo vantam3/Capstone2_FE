@@ -31,16 +31,16 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUserData = localStorage.getItem("user");
+    const storedUserData = sessionStorage.getItem("user");
     if (storedUserData) {
       try {
         const parsedUser: UserProfileData = JSON.parse(storedUserData);
         setUser(parsedUser);
       } catch (error) {
-        console.error("Lỗi khi parse dữ liệu người dùng từ localStorage:", error);
+        console.error("Lỗi khi parse dữ liệu người dùng từ sessionStorage:", error);
         setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
       }
     } else {
       setUser(null);
@@ -50,13 +50,13 @@ export default function ProfilePage() {
 
   const handleUserUpdated = (updatedUser: UserProfileData) => {
     setUser(updatedUser);
-    // localStorage đã được cập nhật trong UserInfo, nhưng có thể làm lại ở đây để chắc chắn
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    // sessionStorage đã được cập nhật trong UserInfo, nhưng có thể làm lại ở đây để chắc chắn
+    sessionStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
     setUser(null);
     navigate("/home");
   };
