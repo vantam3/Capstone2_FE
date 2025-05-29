@@ -40,17 +40,28 @@ const Admin = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case "userManagement": return <UserManagement />;
-      case "contentManagement": return <ContentManagement />;
-      case "reports": return <GenerateReports />;
-      case "analytics": return <Analytics />;
-      case "errorLog": return <ErrorLog />;
+      case "userManagement":
+        return <UserManagement />;
+      case "contentManagement":
+        return <ContentManagement />;
+      case "reports":
+        return <GenerateReports />;
+      case "analytics":
+        return <Analytics />;
+      case "errorLog":
+        return <ErrorLog />;
       case "dashboard":
       default:
         const now = new Date();
         const weekNum = getISOWeek(now);
         const start = startOfWeek(now, { weekStartsOn: 1 });
         const end = endOfWeek(now, { weekStartsOn: 1 });
+
+        // Lọc 3 bài tập được luyện nhiều nhất
+        const mostPracticedFiltered = (summary?.most_practiced_content || [])
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3);
+
         return (
           <div className="space-y-6">
             <div>
@@ -136,7 +147,7 @@ const Admin = () => {
                 <CardContent>
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={summary?.most_practiced_content || []}>
+                      <BarChart data={mostPracticedFiltered}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
