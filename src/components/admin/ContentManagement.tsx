@@ -1,18 +1,43 @@
-// Cập nhật ContentManagement: sửa lại nút Edit giống logic trong quản lý người dùng
+// ✅ Đã cập nhật: gửi genre/level là ID, loại bỏ status, dùng dropdown chọn đúng ID
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  Card, CardContent, CardHeader, CardTitle
+} from "@/components/ui/card";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@/components/ui/table";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, MoreHorizontal, Plus } from 'lucide-react';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
+import { Plus, MoreHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const API_BASE = 'http://127.0.0.1:8000';
+
+const GENRE_MAP = {
+  1: "Daily Life",
+  2: "Technology",
+  3: "Travel",
+  4: "Education",
+  5: "Family",
+  6:"Others"  
+};
+
+const LEVEL_MAP = {
+  1: "Beginner",
+  2: "Intermediate",
+  3: "Advanced"
+};
 
 const ContentManagement = () => {
   const { toast } = useToast();
@@ -22,26 +47,11 @@ const ContentManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newDocument, setNewDocument] = useState({
     title: '',
-    category: 'Business',
-    level: 'Intermediate',
+    category: 1,
+    level: 1,
     content: '',
-    status: 'Public'
+    language: 'en'
   });
-const GENRE_MAP = {
-  1: "Daily Life",
-  2: "Technology",
-  3: "Travel",
-  4: "Education",
-  5: "Family"
-};
-
-
-const LEVEL_MAP = {
-  1: "Beginner",
-  2: "Intermediate",
-  3: "Advanced"
-};
-
 
   useEffect(() => {
     fetchDocuments();
@@ -57,7 +67,7 @@ const LEVEL_MAP = {
         genre: item.genre,
         level: item.level,
         content: item.content,
-        status: item.status || 'Public',
+        language: item.language,
         dateAdded: item.created_at?.split("T")[0] || ''
       }));
       setDocuments(transformed);
@@ -67,13 +77,17 @@ const LEVEL_MAP = {
   };
 
   const handleSubmitDocument = async () => {
+    if (!newDocument.category || !newDocument.level) {
+      toast({ title: "Missing Fields", description: "Please select genre and level.", variant: "destructive" });
+      return;
+    }
     try {
       const payload = {
         title: newDocument.title,
         genre: newDocument.category,
         level: newDocument.level,
         content: newDocument.content,
-        status: newDocument.status
+        language: newDocument.language
       };
       const url = editingDoc ? `${API_BASE}/api/update/${editingDoc.id}/` : `${API_BASE}/api/add/`;
       const method = editingDoc ? 'PUT' : 'POST';
@@ -84,7 +98,7 @@ const LEVEL_MAP = {
       });
       if (res.ok) {
         toast({ title: editingDoc ? 'Document Updated' : 'Document Added' });
-        setNewDocument({ title: '', category: 'Business', level: 'Intermediate', content: '', status: 'Draft' });
+        setNewDocument({ title: '', category: 1, level: 1, content: '', language: 'en' });
         setEditingDoc(null);
         setDialogOpen(false);
         fetchDocuments();
@@ -112,17 +126,17 @@ const LEVEL_MAP = {
     searchTerm.trim() === ''
       ? documents
       : documents.filter(doc =>
-          doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          String(doc.genre).toLowerCase().includes(searchTerm.toLowerCase()) ||
-          String(doc.level).toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(doc.genre).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(doc.level).toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Content Management</h2>
         <Button onClick={() => {
-          setNewDocument({ title: '', category: 'Business', level: 'Intermediate', content: '', status: 'Public' });
+          setNewDocument({ title: '', category: 1, level: 1, content: '', language: 'en' });
           setEditingDoc(null);
           setDialogOpen(true);
         }}><Plus className="w-4 h-4 mr-2" /> Add Document</Button>
@@ -134,9 +148,7 @@ const LEVEL_MAP = {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Reading Materials</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>Reading Materials</CardTitle></CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -144,7 +156,6 @@ const LEVEL_MAP = {
                 <TableHead>Title</TableHead>
                 <TableHead>Genre</TableHead>
                 <TableHead>Level</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -155,8 +166,6 @@ const LEVEL_MAP = {
                   <TableCell>{doc.title}</TableCell>
                   <TableCell>{GENRE_MAP[doc.genre] || doc.genre}</TableCell>
                   <TableCell>{LEVEL_MAP[doc.level] || doc.level}</TableCell>
-
-                  <TableCell>{doc.status}</TableCell>
                   <TableCell>{doc.dateAdded}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -174,7 +183,7 @@ const LEVEL_MAP = {
                             category: doc.genre,
                             level: doc.level,
                             content: doc.content,
-                            status: doc.status || 'Public'
+                            language: doc.language || 'en'
                           });
                           setDialogOpen(true);
                         }}>Edit</DropdownMenuItem>
@@ -185,7 +194,7 @@ const LEVEL_MAP = {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
                     No documents found.
                   </TableCell>
                 </TableRow>
@@ -203,20 +212,29 @@ const LEVEL_MAP = {
           <div className="space-y-3">
             <Label>Title</Label>
             <Input value={newDocument.title} onChange={e => setNewDocument({ ...newDocument, title: e.target.value })} />
+
             <Label>Category</Label>
-            <Input value={newDocument.category} onChange={e => setNewDocument({ ...newDocument, category: e.target.value })} />
-            <Label>Level</Label>
-            <Input value={newDocument.level} onChange={e => setNewDocument({ ...newDocument, level: e.target.value })} />
-            <Label>Content</Label>
-            <Textarea value={newDocument.content} onChange={e => setNewDocument({ ...newDocument, content: e.target.value })} />
-            <Label>Status</Label>
-            <Select value={newDocument.status} onValueChange={v => setNewDocument({ ...newDocument, status: v })}>
-              <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+            <Select value={String(newDocument.category)} onValueChange={v => setNewDocument({ ...newDocument, category: Number(v) })}>
+              <SelectTrigger><SelectValue placeholder="Select genre" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Draft">Draft</SelectItem>
-                <SelectItem value="Published">Published</SelectItem>
+                {Object.entries(GENRE_MAP).map(([id, name]) => (
+                  <SelectItem key={id} value={id}>{name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
+
+            <Label>Level</Label>
+            <Select value={String(newDocument.level)} onValueChange={v => setNewDocument({ ...newDocument, level: Number(v) })}>
+              <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(LEVEL_MAP).map(([id, name]) => (
+                  <SelectItem key={id} value={id}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Label>Content</Label>
+            <Textarea value={newDocument.content} onChange={e => setNewDocument({ ...newDocument, content: e.target.value })} />
           </div>
           <DialogFooter>
             <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>

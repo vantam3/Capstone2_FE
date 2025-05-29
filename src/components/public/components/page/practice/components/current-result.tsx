@@ -4,7 +4,8 @@ const GENRE_MAP = {
   2: "Technology",
   3: "Travel",
   4: "Education",
-  5: "Family"
+  5: "Family",
+  6: "Others"
 };
 
 
