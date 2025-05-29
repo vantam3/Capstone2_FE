@@ -1,8 +1,6 @@
-// src/components/UserInfo.tsx
 import { useState, useEffect, FormEvent } from "react";
 import axios from "axios";
 
-// Interface nhất quán cho dữ liệu người dùng
 export interface UserProfileData {
   id: number;
   username: string;
@@ -21,20 +19,24 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
     first_name: "",
     last_name: "",
     email: "",
+    new_password: "",
+    confirm_password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         first_name: user.first_name || "",
         last_name: user.last_name || "",
         email: user.email || "",
-      });
+      }));
     }
   }, [user]);
 
@@ -51,6 +53,21 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
     setIsSubmitting(true);
     setMessage(null);
 
+    if (showPasswordFields && formData.new_password !== formData.confirm_password) {
+      setMessage({ text: "Passwords do not match.", type: "error" });
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (showPasswordFields && formData.new_password) {
+      const passwordValidationRegex = /^(?=.{6,})(?!.*\s)(?!.*<script>)(?!.*(--|SELECT|DROP|DELETE)).*$/i;
+      if (!passwordValidationRegex.test(formData.new_password)) {
+        setMessage({ text: "Password must be at least 6 characters, not contain spaces or dangerous patterns.", type: "error" });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const token = sessionStorage.getItem("token");
     if (!token) {
       setMessage({ text: "Authentication token not found. Please log in.", type: "error" });
@@ -58,17 +75,20 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
       return;
     }
 
-    const payload = {
+    const payload: any = {
       first_name: formData.first_name,
       last_name: formData.last_name,
       email: formData.email,
-      // We don't send 'username' or 'id' in the payload for an update to this specific endpoint
     };
 
+    if (showPasswordFields && formData.new_password) {
+      payload.new_password = formData.new_password;
+      payload.confirm_password = formData.confirm_password;
+    }
+
     try {
-      // 👇 **MODIFIED LINE: Update API endpoint**
       const response = await axios.patch(
-        `http://localhost:8000/api/profile/update/`, // Use the new endpoint
+        `http://localhost:8000/api/profile/update/`,
         payload,
         {
           headers: {
@@ -91,10 +111,7 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
         (error.response?.data && typeof error.response.data === "object"
           ? Object.values(error.response.data).flat().join(" ")
           : "Failed to update your profile. Please try again.");
-      setMessage({
-        text: errorMsg,
-        type: "error",
-      });
+      setMessage({ text: errorMsg, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -134,10 +151,7 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label
-              htmlFor="first_name"
-              className="block text-sm font-medium text-gray-200"
-            >
+            <label htmlFor="first_name" className="block text-sm font-medium text-gray-200">
               First Name
             </label>
             <input
@@ -151,10 +165,7 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
           </div>
 
           <div className="space-y-1">
-            <label
-              htmlFor="last_name"
-              className="block text-sm font-medium text-gray-200"
-            >
+            <label htmlFor="last_name" className="block text-sm font-medium text-gray-200">
               Last Name
             </label>
             <input
@@ -169,10 +180,7 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
         </div>
 
         <div className="space-y-1">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-200"
-          >
+          <label htmlFor="email" className="block text-sm font-medium text-gray-200">
             Email
           </label>
           <input
@@ -185,6 +193,50 @@ export function UserInfo({ user, onUserUpdated }: UserInfoProps) {
             className="w-full px-3 py-2 border border-gray-400 dark:border-gray-500 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] focus:border-[#8888aa] bg-[#555588] dark:bg-gray-700 text-white"
           />
         </div>
+
+        <div className="pt-4">
+          <button
+            type="button"
+            onClick={() => setShowPasswordFields((prev) => !prev)}
+            className="text-sm text-blue-300 hover:underline"
+          >
+            {showPasswordFields ? "Cancel Password Change" : "Change Password"}
+          </button>
+        </div>
+
+        {showPasswordFields && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label htmlFor="new_password" className="block text-sm font-medium text-gray-200">
+                New Password
+              </label>
+              <input
+                id="new_password"
+                name="new_password"
+                type="password"
+                value={formData.new_password}
+                onChange={handleInputChange}
+                placeholder="New password"
+                className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] bg-[#555588] text-white"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-200">
+                Confirm Password
+              </label>
+              <input
+                id="confirm_password"
+                name="confirm_password"
+                type="password"
+                value={formData.confirm_password}
+                onChange={handleInputChange}
+                placeholder="Repeat new password"
+                className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8888aa] bg-[#555588] text-white"
+              />
+            </div>
+          </div>
+        )}
 
         <button
           type="submit"
