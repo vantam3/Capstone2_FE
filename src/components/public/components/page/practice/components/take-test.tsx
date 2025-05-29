@@ -16,16 +16,16 @@ function TakeTest({ selectedLevel, selectedTopic, setActiveTab, setResultData })
   const [audioBlob, setAudioBlob] = useState(null);
   const [isRecordingIndicatorVisible, setIsRecordingIndicatorVisible] = useState(false);
   const [audioPlayer, setAudioPlayer] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);  // NEW
 
-const GENRE_MAP = {
-  1: "Daily Life",
-  2: "Technology",
-  3: "Travel",
-  4: "Education",
-  5: "Family",
-  6: "Others"
-};
-
+  const GENRE_MAP = {
+    1: "Daily Life",
+    2: "Technology",
+    3: "Travel",
+    4: "Education",
+    5: "Family",
+    6: "Others"
+  };
 
   const LEVEL_MAP = {
     1: "Beginner",
@@ -101,53 +101,61 @@ const GENRE_MAP = {
   };
 
   const handleSubmit = () => {
-  if (!audioBlob) {
-    setError("No recording available to submit.");
-    return;
-  }
+    if (!audioBlob) {
+      setError("No recording available to submit.");
+      return;
+    }
 
-  const webmFile = new File([audioBlob], "user_audio.webm", { type: "audio/webm" });
-  const formData = new FormData();
-  formData.append("audio_file", webmFile);
+    if (!question?.id) {
+      setError("No question selected.");
+      return;
+    }
 
-  if (!question?.id) {
-    setError("No question selected.");
-    return;
-  }
+    // Lấy token từ sessionStorage
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      setError("You must be logged in to submit.");
+      return;
+    }
 
-  formData.append("speaking_text_id", question.id);
+    setIsSubmitting(true);  // Bật loading và disable nút
+    setError("");           // Xóa lỗi cũ
 
-  // Lấy token từ sessionStorage
-  const token = sessionStorage.getItem("token");
-  if (!token) {
-    setError("You must be logged in to submit.");
-    return;
-  }
+    const webmFile = new File([audioBlob], "user_audio.webm", { type: "audio/webm" });
+    const formData = new FormData();
+    formData.append("audio_file", webmFile);
+    formData.append("speaking_text_id", question.id);
 
-  axios
-    .post("http://127.0.0.1:8000/api/submit-speaking/", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,  // Gửi token vào header
-        "Content-Type": "multipart/form-data", // Có thể không cần set thủ công axios tự nhận
-      }
-    })
-    .then((res) => {
-      setResultData({
-        score: res.data.score,
-        user_text: res.data.user_text,
-        original_text: res.data.original_text,
-        examTime: new Date().toLocaleString(),
-        topicName: selectedTopic,
-        levelName: selectedLevel,
+    toast.info("Submitting your recording, please wait...");
+
+    axios
+      .post("http://127.0.0.1:8000/api/submit-speaking/", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        }
+      })
+      .then((res) => {
+        setIsSubmitting(false);
+        toast.success("Submitted successfully!");
+        setResultData({
+          score: res.data.score,
+          user_text: res.data.user_text,
+          original_text: res.data.original_text,
+          examTime: new Date().toLocaleString(),
+          topicName: selectedTopic,
+          levelName: selectedLevel,
+        });
+        setActiveTab("tab_3");
+      })
+      .catch((err) => {
+        setIsSubmitting(false);
+        console.error("Upload failed:", err);
+        const message = err.response?.data?.error || "An error occurred while submitting the audio.";
+        setError(message);
+        toast.error(message);
       });
-      setActiveTab("tab_3");
-    })
-    .catch((err) => {
-      console.error("Upload failed:", err);
-      const message = err.response?.data?.error || "An error occurred while submitting the audio.";
-      setError(message);
-    });
-};
+  };
 
   return (
     <>
@@ -217,9 +225,36 @@ const GENRE_MAP = {
 
               <button
                 onClick={handleSubmit}
-                className="focus:outline-none gap-2 items-center flex m-auto text-white bg-[#5f3dc4] hover:bg-[#5f3dc4] font-medium rounded-lg text-sm px-5 py-2.5 mt-4"
+                disabled={isSubmitting} // disable khi đang gửi
+                className="focus:outline-none gap-2 items-center flex m-auto text-white bg-[#5f3dc4] hover:bg-[#5f3dc4] font-medium rounded-lg text-sm px-5 py-2.5 mt-4 disabled:opacity-50"
               >
-                Submit
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
               </button>
             </div>
           </div>
