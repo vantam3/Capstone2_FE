@@ -12,7 +12,7 @@ function ChallengeMainPage() {
 
   useEffect(() => {
     const fetchChallenge = async () => {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await axios.get(`http://localhost:8000/api/challenges/${challengeId}/`, { headers });
       setChallenge(res.data);
@@ -54,7 +54,15 @@ function ChallengeMainPage() {
                 <h3 className="font-semibold text-lg">{exercise.title}</h3>
                 <p className="text-sm text-gray-400 mt-1">{exercise.description}</p>
                 <button
-                  onClick={() => navigate(`/challenges/${challenge.id}/practice/${exercise.id}`)}
+                  onClick={() => {
+                  const token = sessionStorage.getItem("token");
+                  if (!token) {
+                    alert("You must be signed in to start this exercise.");
+                    return;
+                }
+                navigate(`/challenges/${challenge.id}/practice/${exercise.id}`);
+          }}
+
                   className="mt-3 px-4 py-2 bg-[#8861ea] rounded text-sm"
                 >
                   Start Exercise

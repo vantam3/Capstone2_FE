@@ -14,7 +14,7 @@ function YourRanking() {
         const res = await axios.get("http://localhost:8000/api/leaderboard/");
         const leaderboard = res.data.leaderboard;
 
-        const userJson = localStorage.getItem("user");
+        const userJson = sessionStorage.getItem("user");
         const currentUser = userJson ? JSON.parse(userJson).username : null;
         if (!currentUser) return;
 

@@ -23,8 +23,8 @@ function Challenges() {
       setIsLoading(true);
       setError(null);
       try {
-        // TODO: Lấy token từ localStorage hoặc context nếu API yêu cầu xác thực
-        const token = localStorage.getItem("token");
+        // TODO: Lấy token từ sessionStorage hoặc context nếu API yêu cầu xác thực
+        const token = sessionStorage.getItem("token");
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         const response = await axios.get<ChallengeInfo[]>("http://localhost:8000/api/challenges/", { headers });

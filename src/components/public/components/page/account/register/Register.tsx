@@ -23,7 +23,13 @@ function Register({ setActiveTab }: any) {
       .string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters")
-      .max(64, "Maximum 64 characters allowed"),
+      .max(64, "Maximum 64 characters allowed")
+      .matches(/^\S*$/, "Password must not contain spaces")
+      .test("no-dangerous", "Password contains potentially dangerous input", value => {
+        if (!value) return false;
+        const blacklist = ["<script>", "SELECT", "INSERT", "DELETE", "UPDATE", "--", "||", "&&"];
+        return !blacklist.some(pattern => value.toUpperCase().includes(pattern));
+      }),
     confirm_password: yup
       .string()
       .oneOf([yup.ref("password")], "Passwords must match")
@@ -40,6 +46,7 @@ function Register({ setActiveTab }: any) {
   const methods = useForm({
     resolver: yupResolver(RegisterSchema),
     defaultValues,
+    mode: "onBlur",
   });
 
   const {
@@ -74,7 +81,7 @@ function Register({ setActiveTab }: any) {
         confirm_password: data.confirm_password,
       });
 
-      setSuccessOpen(true); // mở dialog thành công
+      setSuccessOpen(true);
 
     } catch (error: any) {
       const errorMsg =
@@ -144,12 +151,10 @@ function Register({ setActiveTab }: any) {
           <p className="text-red-600 mt-2 text-xs">{errors.confirm_password?.message}</p>
         </div>
 
-        {/* Error */}
         {errorMessage && (
           <div className="mb-4 text-red-600 text-sm">{errorMessage}</div>
         )}
 
-        {/* Submit Button */}
         <button
           disabled={isLoading}
           type="submit"
@@ -171,7 +176,6 @@ function Register({ setActiveTab }: any) {
           )}
         </button>
 
-        {/* Sign In Redirect */}
         <div className="flex items-center justify-center px-2 py-4 text-sm text-white">
           Already have an account?
           <span
@@ -187,7 +191,6 @@ function Register({ setActiveTab }: any) {
         </div>
       </form>
 
-      {/* Success Dialog */}
       <Dialog open={successOpen} onClose={() => {}} className="relative z-50">
         <DialogBackdrop className="fixed inset-0 bg-black/50" />
         <div className="fixed inset-0 flex items-center justify-center p-4">

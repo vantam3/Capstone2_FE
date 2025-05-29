@@ -1,61 +1,49 @@
-import { useState } from "react";
+import React from "react";
 
-// ✅ Define HistoryItem interface for reuse
-interface HistoryItem {
+type HistoryItem = {
   id: number;
-  date: string;
   title: string;
+  challenge_title: string;
   score: number;
-  duration: string;
-}
+  attempted_time: string;
+};
 
-interface SimpleHistoryProps {
+type Props = {
   items: HistoryItem[];
-}
+};
 
-export function SimpleHistory({ items }: SimpleHistoryProps) {
+export function SimpleHistory({ items }: Props) {
   return (
-    <div
-      style={{ backgroundColor: "#666699" }}
-      className="rounded-lg shadow-md p-6 w-full"
-    >
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white mb-2">Activity History</h2>
-        <p className="text-sm text-gray-200">
-          Review your previous practice sessions
-        </p>
+    <div className="bg-[#170a38] text-white">
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold">Exercise History</h2>
+        <p className="text-sm text-gray-400">Your completed exercises</p>
       </div>
-
-      {items.length === 0 ? (
-        <p className="text-white text-center py-8">
-          You haven't completed any practice sessions yet
-        </p>
-      ) : (
-        <div className="space-y-4">
-          {items.map((item) => (
+      <div className="space-y-4">
+        {items.length === 0 ? (
+          <p className="text-gray-400">No history available.</p>
+        ) : (
+          items.map((item) => (
             <div
               key={item.id}
-              className="bg-white/20 rounded-lg p-4 flex justify-between items-center"
+              className="bg-[#1c0f3c] border border-[#321f66] rounded-lg p-4 shadow-md flex justify-between items-center"
             >
               <div>
-                <h4 className="font-medium text-white">{item.title}</h4>
-                <p className="text-sm text-gray-200">Date: {item.date}</p>
-                <p className="text-sm text-gray-200">
-                  Duration: {item.duration}
+                <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-300 mb-1">
+                  Challenge: <span className="text-white">{item.challenge_title}</span>
+                </p>
+                <p className="text-sm text-gray-300 mb-1">
+                  Time: <span className="text-white">{item.attempted_time}</span>
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-lg font-bold text-yellow-200">
-                  {item.score}%
-                </div>
-                <button className="text-sm text-white hover:underline">
-                  View Details
-                </button>
+                <p className="text-3xl font-bold text-yellow-400">{item.score} pts</p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }

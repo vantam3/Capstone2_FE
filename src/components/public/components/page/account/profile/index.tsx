@@ -1,46 +1,29 @@
-// src/pages/ProfilePage.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SimpleSidebar } from "@/components/public/components/page/account/profile/components/side-bar"; // Giả sử đường dẫn này đúng
-import { UserInfo, UserProfileData } from "@/components/public/components/page/account/profile/components/user-info"; // Import UserInfo và UserProfileData
-import { SimpleHistory } from "@/components/public/components/page/account/profile/components/histories"; // Giả sử đường dẫn này đúng
+import { SimpleSidebar } from "@/components/public/components/page/account/profile/components/side-bar";
+import { UserInfo, UserProfileData } from "@/components/public/components/page/account/profile/components/user-info"; 
+import { SimpleHistory } from "@/components/public/components/page/account/profile/components/histories"; 
+import axios from "axios";
 
 export default function ProfilePage() {
   const [activePage, setActivePage] = useState("profile");
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [history] = useState([
-    {
-      id: 1,
-      date: "2025-05-01",
-      title: "Luyện phát âm - Bài 1",
-      score: 85,
-      duration: "5 phút",
-    },
-    {
-      id: 2,
-      date: "2025-04-30",
-      title: "Luyện phát âm - Bài 2",
-      score: 92,
-      duration: "7 phút",
-    },
-    // Thêm các mục lịch sử khác nếu cần
-  ]);
+  const [history, setHistory] = useState([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUserData = localStorage.getItem("user");
+    const storedUserData = sessionStorage.getItem("user");
     if (storedUserData) {
       try {
         const parsedUser: UserProfileData = JSON.parse(storedUserData);
         setUser(parsedUser);
       } catch (error) {
-        console.error("Lỗi khi parse dữ liệu người dùng từ localStorage:", error);
+        console.error("Lỗi khi parse dữ liệu người dùng từ sessionStorage:", error);
         setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
       }
     } else {
       setUser(null);
@@ -48,15 +31,33 @@ export default function ProfilePage() {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+    axios.get("http://localhost:8000/api/me/exercise-history/", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => {
+      const items = res.data.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        challenge_title: item.challenge_title,
+        score: item.score,
+        attempted_time: item.attempted_time
+      }));
+      setHistory(items);
+    })
+    .catch(err => console.error("Failed to fetch exercise history", err));
+  }, []);
+
   const handleUserUpdated = (updatedUser: UserProfileData) => {
     setUser(updatedUser);
-    // localStorage đã được cập nhật trong UserInfo, nhưng có thể làm lại ở đây để chắc chắn
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    sessionStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
     setUser(null);
     navigate("/home");
   };
@@ -85,7 +86,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Dữ liệu cho SimpleSidebar, giả sử nó cần fullName và avatarUrl (dù rỗng)
   const userForSidebar = {
     id: user.id,
     username: user.username,
@@ -93,16 +93,15 @@ export default function ProfilePage() {
                 ? `${user.first_name} ${user.last_name}`
                 : user.username,
     email: user.email || "",
-    // phone: "", // Đã bỏ số điện thoại
-    avatarUrl: "", // Backend không cung cấp, truyền chuỗi rỗng
+    avatarUrl: "",
   };
 
   return (
     <div className="min-h-screen bg-[#170a38] text-white pt-4 pb-8 px-4">
-      <div className="mt-[4rem] sm:mt-[6rem] md:mt-[8rem] max-w-screen-lg mx-auto sm:p-2 p-6"> {/* Adjusted top margin */}
+      <div className="mt-[4rem] sm:mt-[6rem] md:mt-[8rem] max-w-screen-lg mx-auto sm:p-2 p-6">
         <div className="flex items-center gap-4 mb-6">
           <button
-            onClick={() => navigate(-1)} // Quay lại trang trước đó
+            onClick={() => navigate(-1)}
             className="text-white flex items-center gap-2 text-xs hover:text-gray-300"
           >
             <svg
@@ -137,7 +136,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="flex-1">
-          {activePage === "profile" && user && ( // Đảm bảo user không null trước khi render UserInfo
+          {activePage === "profile" && user && (
             <UserInfo
               user={user}
               onUserUpdated={handleUserUpdated}

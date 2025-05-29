@@ -128,7 +128,7 @@ function ChooseTopic({
       <p
         onClick={() => {
           if (selectedTextId) {
-            localStorage.setItem("selectedTextId", selectedTextId);
+            sessionStorage.setItem("selectedTextId", selectedTextId);
             setActiveTab("tab_2");
           }
         }}
