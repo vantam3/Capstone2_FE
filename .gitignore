@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 package-lock.json
 packege.json
+node_modules/
+dist/
+.env
+*.log
+bun.lockb
+.vscode/
+.DS_Store
