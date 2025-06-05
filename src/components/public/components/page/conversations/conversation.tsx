@@ -11,22 +11,28 @@ const WordFeedback: React.FC<{ wordGroups: WordState[][] }> = ({ wordGroups }) =
     <h2 className="text-lg text-white font-semibold mb-2">📝 Your Pronunciation</h2>
     <div className="space-y-2">
       {wordGroups.map((group, groupIdx) => (
-        <p key={groupIdx} className="flex flex-wrap gap-1">
-          {group.map((w, idx) => (
-            <span
-              key={idx}
-              className={`px-2 py-1 rounded text-sm font-medium ${
-                w.correct ? "bg-green-600 text-white" : "bg-red-600 text-white"
-              }`}
-            >
-              {w.word}
-            </span>
-          ))}
-        </p>
+        <div key={groupIdx} className="pb-2">
+          {groupIdx > 0 && (
+            <hr className="border-t border-gray-600 mb-2" />
+          )}
+          <p className="flex flex-wrap gap-1">
+            {group.map((w, idx) => (
+              <span
+                key={idx}
+                className={`px-2 py-1 rounded text-sm font-medium ${
+                  w.correct ? "bg-green-600 text-white" : "bg-red-600 text-white"
+                }`}
+              >
+                {w.word}
+              </span>
+            ))}
+          </p>
+        </div>
       ))}
     </div>
   </div>
 );
+
 
 const ConversationPage: React.FC = () => {
   const [wordGroups, setWordGroups] = useState<WordState[][]>([]);
